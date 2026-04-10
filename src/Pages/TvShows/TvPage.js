@@ -72,9 +72,7 @@ const TvPage = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: tvShow.backdrop_path && tvShow.backdrop_path !== null
-              ? `url(https://image.tmdb.org/t/p/original${tvShow.backdrop_path})`
-              : 'none',
+
             backgroundColor: !tvShow.backdrop_path ? '#141414' : 'transparent',
             transform: `translateY(${scrollY * 0.5}px)`,
           }}
