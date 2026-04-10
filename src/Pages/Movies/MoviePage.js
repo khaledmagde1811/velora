@@ -296,43 +296,79 @@ const MoviePage = () => {
               </div>
             )}
             
-            {/* Fullscreen Button */}
-            {currentSource && !videoError && (
-              <button
-                onClick={toggleFullscreen}
-                className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-2.5 transition-all z-20 hover:scale-110"
-                title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-              >
-                {isFullscreen ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                )}
-              </button>
-            )}
-            
-            {/* Server Switch Button */}
-            {workingSources.length > 1 && currentSource && !videoError && (
-              <button
-                onClick={switchServer}
-                className="absolute bottom-4 left-4 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-2.5 transition-all z-20 hover:scale-110 text-xs"
-                title="تغيير السيرفر"
-              >
-                <div className="flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span className="text-xs hidden sm:inline">
-                    سيرفر {currentServerIndex + 1}/{workingSources.length}
-                  </span>
-                </div>
-              </button>
-            )}
-          </div>
+          {/* Video Controls Overlay */}
+{selectedEpisode && !videoError && (
+  <div 
+    className={`
+      absolute left-0 right-0 
+      bg-gradient-to-t from-black/60 via-black/30 to-transparent 
+      p-4 sm:p-5 
+      opacity-100 md:opacity-0 md:hover:opacity-100 
+      transition-all duration-300 
+      z-20
+      ${isFullscreen 
+        ? 'top-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent' 
+        : 'bottom-0'
+      }
+    `}
+  >
+
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+      {/* LEFT CONTROLS */}
+      <div className="flex items-center justify-between sm:justify-start gap-3">
+
+        {/* Fullscreen Button */}
+        <button
+          onClick={toggleFullscreen}
+          className="bg-transparent text-white/80 hover:text-white active:bg-white/10 rounded-full p-3 transition-all active:scale-95"
+          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
+        >
+          {isFullscreen ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          )}
+        </button>
+
+        {/* Server Switch */}
+        {workingUrls.length > 1 && (
+          <button
+            onClick={switchServer}
+            className="relative bg-transparent text-white/80 hover:text-white active:bg-white/10 rounded-full p-3 transition-all active:scale-95 group"
+            title="تغيير السيرفر"
+          >
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-xs font-medium hidden sm:inline">
+                سيرفر {currentServerIndex + 1}/{workingUrls.length}
+              </span>
+            </div>
+
+            {/* Mobile hint */}
+            <div className="absolute -bottom-6 left-0 text-[10px] text-white/60 sm:hidden whitespace-nowrap">
+              لو الفيديو مش شغال جرّب سيرفر تاني
+            </div>
+          </button>
+        )}
+      </div>
+
+      {/* EPISODE NAME */}
+      <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
+        <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
+          {selectedEpisode?.name}
+        </span>
+      </div>
+
+    </div>
+  </div>
+)}
           
           {/* Movie Info */}
           <div className="px-4 md:px-8 lg:px-12 py-6">
