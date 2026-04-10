@@ -373,16 +373,6 @@ const MoviePage = () => {
   </div>
 )}
 
-      {/* EPISODE NAME */}
-      <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
-        <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
-          {selectedEpisode?.name}
-        </span>
-      </div>
-
-    </div>
-  </div>
-)}
           
           {/* Movie Info */}
           <div className="px-4 md:px-8 lg:px-12 py-6">
