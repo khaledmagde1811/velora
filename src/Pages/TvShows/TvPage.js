@@ -401,18 +401,18 @@ const TvPage = () => {
               </div>
             )}
 
-            {/* Video Controls Overlay محسن */}
+  {/* Video Controls Overlay */}
 {selectedEpisode && !videoError && (
-  // ✅ هنغير مكان الـ absolute على حسب if fullscreen
   <div 
     className={`
       absolute left-0 right-0 
-      bg-gradient-to-t from-black/90 via-black/50 to-transparent 
+      bg-gradient-to-t from-black/60 via-black/30 to-transparent 
       p-4 sm:p-5 
-      opacity-0 hover:opacity-100 transition-all duration-300 
+      opacity-100 md:opacity-0 md:hover:opacity-100 
+      transition-all duration-300 
       z-20
       ${isFullscreen 
-        ? 'top-0 bg-gradient-to-b from-black/90 via-black/50 to-transparent' 
+        ? 'top-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent' 
         : 'bottom-0'
       }
     `}
@@ -426,7 +426,7 @@ const TvPage = () => {
         {/* Fullscreen Button */}
         <button
           onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-3 transition-all active:scale-95"
+          className="bg-transparent text-white/80 hover:text-white active:bg-white/10 rounded-full p-3 transition-all active:scale-95"
           title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
         >
           {isFullscreen ? (
@@ -444,7 +444,7 @@ const TvPage = () => {
         {workingUrls.length > 1 && (
           <button
             onClick={switchServer}
-            className="relative bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-3 transition-all active:scale-95 group"
+            className="relative bg-transparent text-white/80 hover:text-white active:bg-white/10 rounded-full p-3 transition-all active:scale-95 group"
             title="تغيير السيرفر"
           >
             <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ const TvPage = () => {
       </div>
 
       {/* EPISODE NAME */}
-      <div className="bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 max-w-[70%] sm:max-w-none">
+      <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
         <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
           {selectedEpisode?.name}
         </span>
@@ -474,7 +474,6 @@ const TvPage = () => {
     </div>
   </div>
 )}
-          </div>
 
           {/* TV Show Info - محسن جداً */}
           <div className="px-4 md:px-8 lg:px-12 py-8 md:py-10">
