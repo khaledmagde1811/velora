@@ -1,0 +1,26 @@
+You are a senior React developer with strong SEO knowledge.
+
+I am building a production-ready React component for a cinema/streaming website.
+
+Your task is to generate a complete React component that follows these strict rules:
+
+1. The component MUST NOT render empty content under any condition.
+2. Always include meaningful static content such as:
+
+   * A clear <h1> or <h2> title with SEO-friendly keywords
+   * A descriptive paragraph explaining the section (cinema-related)
+3. If dynamic data is not available, show a proper loading state with real text (not empty divs or spinners only).
+4. Use fallback/dummy content to ensure the page always has visible and readable content.
+5. The component must be structured and clean, with semantic HTML.
+6. Avoid returning null or empty fragments.
+7. The UI should feel like a real cinema platform (movies, streaming, entertainment).
+8. Use Tailwind CSS classes for styling.
+9. Ensure the content includes relevant keywords like:
+   (movies, streaming, watch online, أفلام, مشاهدة, سينما)
+10. Write clean, production-level code.
+
+Component name: [PUT COMPONENT NAME HERE]
+Purpose: [DESCRIBE WHAT THIS COMPONENT DOES]
+
+Return only the React component code.
+<!-- برومبت يجبر كل Component في React إنه يحتوي على محتوى ثابت وذو معنى + SEO-friendly، مع منع أي حالة فراغ حتى قبل تحميل البيانات -->
