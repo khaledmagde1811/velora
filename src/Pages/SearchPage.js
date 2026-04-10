@@ -1,4 +1,3 @@
-// Pages/SearchPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import tmdbApi from '../services/tmdb';
@@ -9,13 +8,14 @@ const SearchPage = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-
   const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState(0);
   
-const query = React.useMemo(
-  () => new URLSearchParams(location.search).get('q'),
-  [location.search]
-);
+  const query = React.useMemo(
+    () => new URLSearchParams(location.search).get('q'),
+    [location.search]
+  );
+
   useEffect(() => {
     const searchMovies = async () => {
       if (!query) return;
@@ -28,21 +28,34 @@ const query = React.useMemo(
             page: page 
           }
         });
+        
         if (page === 1) {
           setMovies(response.data.results);
         } else {
           setMovies(prev => [...prev, ...response.data.results]);
         }
-    
-        setHasMore(page < response.data.total_pages);
+        
+        const hasMorePages = page < response.data.total_pages;
+        setHasMore(hasMorePages);
+        setTotalPages(response.data.total_pages);
       } catch (error) {
         console.error('Search error:', error);
+        setHasMore(false);
+        setTotalPages(0);
       } finally {
         setLoading(false);
       }
     };
     searchMovies();
   }, [query, page]);
+
+  // Reset pagination when query changes
+  useEffect(() => {
+    setPage(1);
+    setMovies([]);
+    setHasMore(true);
+    setTotalPages(0);
+  }, [query]);
 
   const loadMore = () => {
     if (hasMore && !loading) {
@@ -74,13 +87,13 @@ const query = React.useMemo(
         <button className="back-btn" onClick={() => navigate(-1)}>← رجوع</button>
         <h1 className="search-title">
           نتائج البحث عن: "{query}"
-          <span className="search-count"> ({movies.length} فيلماً)</span>
+          <span className="search-count"> ({movies.length} فيلماً من {totalPages} صفحة)</span>
         </h1>
       </div>
 
       {movies.length === 0 ? (
         <div className="no-results">
-          <p>😞 لا توجد نتائج مطابقة لبحثك</p>
+          <p> لا توجد نتائج مطابقة لبحثك</p>
           <p>حاول البحث بكلمة مختلفة</p>
         </div>
       ) : (
@@ -115,9 +128,19 @@ const query = React.useMemo(
 
           {hasMore && (
             <div className="load-more-container">
-              <button className="load-more-btn" onClick={loadMore}>
-                تحميل المزيد
+              <button 
+                className="load-more-btn" 
+                onClick={loadMore}
+                disabled={loading}
+              >
+                {loading ? 'جاري التحميل...' : 'تحميل المزيد'}
               </button>
+            </div>
+          )}
+          
+          {!hasMore && movies.length > 0 && (
+            <div className="load-more-container">
+              <p className="text-gray-500 text-sm">تم عرض جميع النتائج</p>
             </div>
           )}
         </>

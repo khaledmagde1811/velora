@@ -226,16 +226,14 @@ const [scrollY, setScrollY] = useState(0);
   }, [tvShow?.id]);
 
   // ========== إضافة تتبع التمرير للتأثير الـ parallax ==========
-useEffect(() => {
-  const handleScroll = () => {
-    setScrollY(window.scrollY);
-  };
-
-  window.addEventListener('scroll', handleScroll);
-  handleScroll();
-
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -497,30 +495,42 @@ useEffect(() => {
               </div>
               
               {/* Rating Circle محسن */}
-              <div className="hidden sm:flex flex-col items-center">
-                <div className="relative w-20 h-20">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke="#2a2a2a"
-                      strokeWidth="3"
-                    />
-                    <path
-                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      fill="none"
-                      stroke={tvShow.vote_average > 7 ? '#46d369' : tvShow.vote_average > 5 ? '#ffa500' : '#e50914'}
-                      strokeWidth="3"
-                      strokeDasharray={`${(tvShow.vote_average / 10) * 100}, 100`}
-                      strokeLinecap="round"
-                    />
-                    <text x="18" y="22" textAnchor="middle" className="text-sm font-bold fill-white">
-                      {tvShow.vote_average?.toFixed(1)}
-                    </text>
-                  </svg>
-                </div>
-                <span className="text-xs text-gray-500 mt-2">تقييم الجمهور</span>
-              </div>
+<div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm text-gray-400 mb-5">
+  {/* Rating Badge */}
+  <div className="flex items-center gap-1.5 bg-yellow-500/15 px-2.5 md:px-3 py-1.5 rounded-full">
+    <span className="text-yellow-500 text-sm md:text-base">⭐</span>
+    <span className="text-white font-semibold text-sm md:text-base">{tvShow.vote_average?.toFixed(1)}</span>
+    <span className="text-gray-500 text-xs hidden sm:inline">/10</span>
+  </div>
+  
+  {/* Separator - hidden on very small screens */}
+  <div className="w-1 h-1 bg-gray-600 rounded-full hidden sm:block"></div>
+  
+  {/* Year Badge */}
+  <div className="px-2.5 md:px-3 py-1.5 bg-gray-800 rounded-full">
+    <span className="text-xs md:text-sm whitespace-nowrap">{tvShow.first_air_date?.split('-')[0] || '?'}</span>
+  </div>
+  
+  {/* Separator */}
+  <div className="w-1 h-1 bg-gray-600 rounded-full hidden sm:block"></div>
+  
+  {/* Seasons Badge */}
+  <div className="bg-[#e50914]/20 px-2.5 md:px-3 py-1.5 rounded-full">
+    <span className="text-xs md:text-sm font-semibold whitespace-nowrap">
+      {tvShow.number_of_seasons} مواسم
+    </span>
+  </div>
+  
+  {/* Separator - hidden on very small screens */}
+  <div className="w-1 h-1 bg-gray-600 rounded-full hidden sm:block"></div>
+  
+  {/* Episodes Badge */}
+  <div className="bg-blue-500/20 px-2.5 md:px-3 py-1.5 rounded-full">
+    <span className="text-xs md:text-sm font-semibold whitespace-nowrap">
+      {tvShow.number_of_episodes} حلقة
+    </span>
+  </div>
+</div>
             </div>
             
             {tvShow.overview && (
@@ -842,18 +852,84 @@ useEffect(() => {
       </div>
     </div>
   </div>
-  {error && (
-  <div className="px-4 md:px-8 lg:px-12 py-4 text-red-400">
-    {error}
-  </div>
-)}
-style={{
-  transform: `translateY(${scrollY * 0.15}px)`,
-  backgroundImage: tvShow.backdrop_path && tvShow.backdrop_path !== null
-    ? `url(https://image.tmdb.org/t/p/original${tvShow.backdrop_path})`
-    : 'none',
-  backgroundColor: !tvShow.backdrop_path ? '#141414' : 'transparent',
-}}
+  
+  <style>{`
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1f1f1f;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #e50914;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #ff0a1a;
+    }
+    
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-fadeInUp {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes spin-slow {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    .animate-spin-slow {
+      animation: spin-slow 2s linear infinite;
+    }
+  `}</style>
 </div>
   );
 };
