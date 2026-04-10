@@ -59,12 +59,12 @@ const MoviePage = () => {
           tmdbApi.get(`/movie/${id}`),
           tmdbApi.get(`/movie/${id}/similar`),
         ]);
-        
+
         if (!movieRes.data) {
           setError('الفيلم غير موجود');
           return;
         }
-        
+
         setMovie(movieRes.data);
         setSuggested(suggestedRes.data.results.slice(0, 18));
       } catch (err) {
@@ -74,7 +74,7 @@ const MoviePage = () => {
         setLoading(false);
       }
     };
-    
+
     if (id) {
       fetchData();
       window.scrollTo(0, 0);
@@ -90,9 +90,9 @@ const MoviePage = () => {
   // Handle iframe error - switch to next server
   const handleIframeError = useCallback(() => {
     const currentIndex = currentServerIndex;
-    
+
     setFailedServers(prev => [...prev, currentIndex]);
-    
+
     if (currentServerIndex + 1 < workingSources.length) {
       setCurrentServerIndex(prev => prev + 1);
       setIsVideoLoading(true);
@@ -119,7 +119,7 @@ const MoviePage = () => {
   const toggleFullscreen = useCallback(async () => {
     const element = playerContainerRef.current;
     if (!element) return;
-    
+
     try {
       if (!document.fullscreenElement) {
         if (element.requestFullscreen) {
@@ -150,11 +150,11 @@ const MoviePage = () => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
-    
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
     document.addEventListener('msfullscreenchange', handleFullscreenChange);
-    
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -183,7 +183,7 @@ const MoviePage = () => {
     return (
       <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center gap-5 text-center px-4">
         <p className="text-[#e50914] text-lg">⚠️ {error || 'الفيلم غير موجود'}</p>
-        <button 
+        <button
           onClick={() => navigate('/')}
           className="bg-[#e50914] hover:bg-[#b20710] text-white px-6 py-2.5 rounded-md transition-all"
         >
@@ -207,21 +207,20 @@ const MoviePage = () => {
     <div className="bg-[#141414] min-h-screen text-white">
       <div className="relative">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
           style={{
-            backgroundImage: movie.backdrop_path 
+            backgroundImage: movie.backdrop_path
               ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
               : 'none',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#141414]/80 via-[#141414]/60 to-[#141414]" />
-        
+
         <div className="relative z-10">
           {/* Navbar */}
           <nav className="fixed top-0 left-0 right-0 h-14 md:h-16 flex items-center px-4 md:px-6 gap-4 bg-gradient-to-b from-black/95 to-transparent z-50">
-           
-            <div 
+            <div
               onClick={() => navigate('/')}
               className="text-xl md:text-2xl font-black text-[#e50914] cursor-pointer hover:scale-105 transition-transform"
             >
@@ -230,7 +229,7 @@ const MoviePage = () => {
           </nav>
 
           {/* Video Player Container */}
-          <div 
+          <div
             ref={playerContainerRef}
             className={`relative w-full bg-black transition-all duration-300 ${
               isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[70vh]'
@@ -251,7 +250,7 @@ const MoviePage = () => {
                   onError={handleIframeError}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 />
-                
+
                 {/* Loading Overlay */}
                 {isVideoLoading && (
                   <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10 transition-opacity duration-300">
@@ -272,7 +271,7 @@ const MoviePage = () => {
                 <p className="text-[#e50914] text-lg font-semibold">عذراً، لا يمكن تشغيل هذا الفيلم حالياً</p>
                 <p className="text-gray-400 text-sm">جميع السيرفرات لا تعمل</p>
                 <div className="flex gap-3 mt-2">
-                  <button 
+                  <button
                     onClick={() => {
                       setVideoError(false);
                       setCurrentServerIndex(0);
@@ -295,24 +294,23 @@ const MoviePage = () => {
                 <p className="text-gray-400 text-sm">سيبدأ الفيديو قريباً</p>
               </div>
             )}
-            
+
             {/* Video Controls Overlay */}
             {!videoError && currentSource && (
-              <div 
+              <div
                 className={`
-                  absolute left-0 right-0 
-                  bg-gradient-to-t from-black/60 via-black/30 to-transparent 
-                  p-4 sm:p-5 
-                  opacity-100 md:opacity-0 md:hover:opacity-100 
-                  transition-all duration-300 
+                  absolute left-0 right-0
+                  bg-gradient-to-t from-black/60 via-black/30 to-transparent
+                  p-4 sm:p-5
+                  opacity-100 md:opacity-0 md:hover:opacity-100
+                  transition-all duration-300
                   z-20
-                  ${isFullscreen 
-                    ? 'top-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent' 
+                  ${isFullscreen
+                    ? 'top-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent'
                     : 'bottom-0'
                   }
                 `}
               >
-
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
                   {/* LEFT CONTROLS */}
@@ -359,7 +357,7 @@ const MoviePage = () => {
                     )}
                   </div>
 
-                  {/* MOVIE NAME بدل EPISODE */}
+                  {/* MOVIE NAME */}
                   <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
                     <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
                       {movie?.title}
@@ -371,7 +369,6 @@ const MoviePage = () => {
             )}
           </div>
 
-          
           {/* Movie Info */}
           <div className="px-4 md:px-8 lg:px-12 py-6">
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
@@ -379,7 +376,7 @@ const MoviePage = () => {
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
                   {movie.title}
                 </h1>
-                
+
                 <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 mb-4">
                   {matchScore && (
                     <span className="text-[#46d369] font-bold text-sm">
@@ -405,7 +402,7 @@ const MoviePage = () => {
                     </>
                   )}
                 </div>
-                
+
                 {/* Genres */}
                 {movie.genres && movie.genres.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -416,14 +413,14 @@ const MoviePage = () => {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Overview */}
                 <p className={`text-gray-300 text-sm md:text-base leading-relaxed mb-4 max-w-2xl transition-all duration-300 ${
                   !showFullInfo && 'line-clamp-3'
                 }`}>
                   {movie.overview || 'لا يوجد وصف متاح لهذا الفيلم'}
                 </p>
-                
+
                 {/* Show More Button */}
                 {movie.overview && movie.overview.length > 200 && (
                   <button
@@ -442,43 +439,44 @@ const MoviePage = () => {
             <div className="px-4 md:px-8 lg:px-12 py-8">
               <h3 className="text-white font-semibold mb-6 flex items-center gap-3 text-xl">
                 <div className="w-10 h-10 bg-gradient-to-br from-[#e50914] to-[#b20710] rounded-xl flex items-center justify-center">
+                  {/* Cursor / pointer icon — fully valid path */}
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.657l2.122-2.122M9.88 9.88l-2.122 2.122" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
                   </svg>
                 </div>
                 <span className="bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
                   أفلام قد تعجبك أيضاً
                 </span>
               </h3>
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-                {suggested.map((movie, idx) => (
+                {suggested.map((suggestedMovie, idx) => (
                   <div
-                    key={movie.id}
-                    onClick={() => navigate(`/movie/${movie.id}`)}
+                    key={suggestedMovie.id}
+                    onClick={() => navigate(`/movie/${suggestedMovie.id}`)}
                     className="group cursor-pointer transition-all duration-300 hover:scale-105 animate-fadeInUp"
                     style={{ animationDelay: `${idx * 0.1}s` }}
                   >
                     <div className="relative rounded-xl overflow-hidden shadow-lg">
                       <img
-                        src={movie.poster_path
-                          ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                        src={suggestedMovie.poster_path
+                          ? `https://image.tmdb.org/t/p/w300${suggestedMovie.poster_path}`
                           : 'https://via.placeholder.com/300x450?text=No+Image'
                         }
-                        alt={movie.title}
+                        alt={suggestedMovie.title}
                         className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                          <h4 className="text-white text-sm font-bold truncate mb-2">{movie.title}</h4>
+                          <h4 className="text-white text-sm font-bold truncate mb-2">{suggestedMovie.title}</h4>
                           <div className="flex items-center justify-between">
                             <span className="text-yellow-400 text-xs flex items-center gap-1">
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.033a1 1 0 00-1.175 0l-2.8 2.033c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                               </svg>
-                              {movie.vote_average?.toFixed(1) || '?'}
+                              {suggestedMovie.vote_average?.toFixed(1) || '?'}
                             </span>
-                            <span className="text-gray-300 text-xs">{movie.release_date?.split('-')[0] || '?'}</span>
+                            <span className="text-gray-300 text-xs">{suggestedMovie.release_date?.split('-')[0] || '?'}</span>
                           </div>
                           <button className="w-full mt-3 bg-[#e50914] hover:bg-[#b20710] text-white text-xs py-1.5 rounded-lg transition-all transform hover:scale-105">
                             مشاهدة
@@ -490,7 +488,7 @@ const MoviePage = () => {
                       </div>
                     </div>
                     <h4 className="text-gray-300 text-sm text-center mt-3 truncate group-hover:text-white transition-colors font-medium">
-                      {movie.title}
+                      {suggestedMovie.title}
                     </h4>
                   </div>
                 ))}
