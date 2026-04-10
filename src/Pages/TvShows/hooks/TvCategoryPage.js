@@ -1,7 +1,7 @@
 // Pages/TvCategoryPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import tmdbApi from '../../services/tmdb';
+import tmdbApi from '../../../services/tmdb';
 
 const TvCategoryPage = () => {
   const { categoryName } = useParams();

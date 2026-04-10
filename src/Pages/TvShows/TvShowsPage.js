@@ -1,5 +1,5 @@
 // Pages/TvShows/TvShowsPage.jsx
-import React, { useState, useEffect,  } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import tmdbApi, { tvRequests } from '../../services/tmdb';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,24 +13,33 @@ import 'swiper/css/navigation';
 const TvRow = ({ title, fetchUrl, onTvClick, onViewAll }) => {
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     const fetchShows = async () => {
       setLoading(true);
+      setFetchError(null);
       try {
-        const response = await tmdbApi.get(fetchUrl);
-        // فلترة المسلسلات الصالحة فقط (لها first_air_date)
+        // تأكد من أن fetchUrl هو string صحيح
+        const url = typeof fetchUrl === 'string' ? fetchUrl : String(fetchUrl);
+        const response = await tmdbApi.get(url);
+        
         let results = response.data.results || [];
+        // فلترة المسلسلات الصالحة فقط (لها first_air_date)
         results = results.filter(show => show.first_air_date && show.name);
         setShows(results.slice(0, 15));
       } catch (error) {
-        console.error('Error fetching TV shows:', error);
+        console.error('Error fetching TV shows for', title, ':', error);
+        setFetchError(error.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchShows();
-  }, [fetchUrl]);
+    
+    if (fetchUrl) {
+      fetchShows();
+    }
+  }, [fetchUrl, title]);
 
   if (loading) {
     return (
@@ -47,6 +56,21 @@ const TvRow = ({ title, fetchUrl, onTvClick, onViewAll }) => {
               <div className="mt-2 h-4 bg-gray-800 rounded animate-pulse"></div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="group/movie-row relative mb-8 md:mb-10">
+        <div className="flex items-center justify-between mb-3 px-4 md:px-8 lg:px-12">
+          <h2 className="text-white text-lg md:text-xl lg:text-2xl font-semibold">
+            {title}
+          </h2>
+        </div>
+        <div className="text-center py-8 text-gray-400">
+          <p>حدث خطأ في تحميل {title}</p>
         </div>
       </div>
     );
@@ -176,10 +200,15 @@ const TvShowsPage = () => {
   useEffect(() => {
     const loadHeroShow = async () => {
       try {
+        // استخدام endpoint صحيح بدون أحرف عربية
         const response = await tmdbApi.get('/tv/popular');
         const shows = response.data.results.filter(show => show.first_air_date && show.backdrop_path);
-        const randomIndex = Math.floor(Math.random() * shows.length);
-        setHeroShow(shows[randomIndex]);
+        if (shows.length > 0) {
+          const randomIndex = Math.floor(Math.random() * shows.length);
+          setHeroShow(shows[randomIndex]);
+        } else {
+          setError('لا توجد مسلسلات متاحة حالياً');
+        }
       } catch (error) {
         console.error('Error loading hero show:', error);
         setError('حدث خطأ في تحميل المسلسلات');
@@ -190,18 +219,18 @@ const TvShowsPage = () => {
     loadHeroShow();
   }, []);
 
-  const handleTvClick = (showId) => {
+  const handleTvClick = useCallback((showId) => {
     navigate(`/tv/${showId}`);
-  };
+  }, [navigate]);
 
-  const handleViewAll = (sectionTitle, fetchUrl) => {
+  const handleViewAll = useCallback((sectionTitle, fetchUrl) => {
     const encodedTitle = encodeURIComponent(sectionTitle);
     const encodedUrl = encodeURIComponent(fetchUrl);
     navigate(`/tv-category/${encodedTitle}?url=${encodedUrl}&type=tv&title=${encodedTitle}`);
-  };
+  }, [navigate]);
 
-  // أقسام المسلسلات
-  const sections = [
+  // أقسام المسلسلات - تأكد من أن الـ URLs صحيحة
+  const sections = useMemo(() => [
     { title: 'مسلسلات Netflix الأصلية', url: tvRequests.fetchNetflixTVShows },
     { title: 'الأكثر مشاهدة', url: tvRequests.fetchTrendingTV },
     { title: 'الأكثر شعبية', url: tvRequests.fetchPopularTV },
@@ -215,15 +244,20 @@ const TvShowsPage = () => {
     { title: 'مسلسلات كرتون', url: tvRequests.fetchAnimationTV },
     { title: 'مسلسلات وثائقية', url: tvRequests.fetchDocumentaryTV },
     { title: 'مسلسلات عربية', url: tvRequests.fetchArabicTV },
-  ];
+  ], []);
 
   if (error) {
     return (
       <div className="min-h-screen bg-[#141414] flex flex-col items-center justify-center gap-5 text-center px-4">
-        <p className="text-[#e50914] text-lg">⚠️ {error}</p>
+        <div className="relative">
+          <div className="w-28 h-28 rounded-full bg-[#e50914]/10 flex items-center justify-center animate-bounce">
+            <span className="text-6xl">⚠️</span>
+          </div>
+        </div>
+        <p className="text-[#e50914] text-xl md:text-2xl font-bold">{error}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="bg-[#e50914] hover:bg-[#b20710] text-white px-6 py-2.5 rounded-md transition-all"
+          className="bg-[#e50914] hover:bg-[#b20710] text-white px-6 py-2.5 rounded-md transition-all transform hover:scale-105"
         >
           إعادة المحاولة
         </button>
@@ -243,7 +277,8 @@ const TvShowsPage = () => {
               style={{ 
                 backgroundImage: heroShow.backdrop_path 
                   ? `url(https://image.tmdb.org/t/p/original${heroShow.backdrop_path})`
-                  : 'none'
+                  : 'none',
+                backgroundColor: !heroShow.backdrop_path ? '#1a1a1a' : 'transparent'
               }}
             />
             
@@ -259,12 +294,16 @@ const TvShowsPage = () => {
                 </h1>
                 
                 <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300 mb-4">
-                  <span className="text-[#46d369] font-semibold">
+                  <span className="text-[#46d369] font-semibold flex items-center gap-1">
                     ⭐ {heroShow.vote_average?.toFixed(1) || '?'} / 10
                   </span>
+                  <span>•</span>
                   <span>{heroShow.first_air_date?.split('-')[0] || '?'}</span>
                   {heroShow.number_of_seasons && (
-                    <span>{heroShow.number_of_seasons} موسم</span>
+                    <>
+                      <span>•</span>
+                      <span>{heroShow.number_of_seasons} موسم</span>
+                    </>
                   )}
                 </div>
                 
@@ -321,7 +360,6 @@ const TvShowsPage = () => {
         ))}
       </div>
 
-      {/* CSS للتحريك والتخصيص */}
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;

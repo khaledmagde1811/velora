@@ -11,7 +11,7 @@ import CategoryPage from './Pages/CategoryPage';
 import SearchPage from './Pages/SearchPage';
 import './App.css';
 import Navbar from './Utility/Navbar';
-import TvCategoryPage from './Pages/TvShows/TvCategoryPage';
+import TvCategoryPage from './Pages/TvShows/hooks/TvCategoryPage';
 import Footer from './Utility/Footer';
 import ScrollToTop from './Utility/ScrollToTop';
 
