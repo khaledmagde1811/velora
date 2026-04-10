@@ -1,4 +1,4 @@
-// TvPage.jsx
+// Pages/TvPage.jsx
 import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTvData } from './hooks/useTvData';
@@ -115,7 +115,7 @@ const TvPage = () => {
               className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
             >
               <span className="font-semibold text-base">
-                {showSidebar ? ' إخفاء الحلقات' : ' عرض الحلقات'}
+                {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
               </span>
               <svg className={`w-5 h-5 transition-transform duration-300 ${showSidebar ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
