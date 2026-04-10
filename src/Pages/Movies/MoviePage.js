@@ -8,6 +8,8 @@ const MoviePage = () => {
   const navigate = useNavigate();
 
   // State
+
+  const [selectedEpisode, setSelectedEpisode] = useState(null); 
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -297,6 +299,7 @@ const MoviePage = () => {
             )}
             
           {/* Video Controls Overlay */}
+{/* Video Controls Overlay */}
 {selectedEpisode && !videoError && (
   <div 
     className={`
@@ -353,11 +356,22 @@ const MoviePage = () => {
 
             {/* Mobile hint */}
             <div className="absolute -bottom-6 left-0 text-[10px] text-white/60 sm:hidden whitespace-nowrap">
-              لو الفيديو مش شغال جرّب سيرفر تاني
-            </div>
+اذا لم يعمل قم بتغير السيرفير            
+              </div>
           </button>
         )}
       </div>
+
+      {/* EPISODE NAME */}
+      <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
+        <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
+          {selectedEpisode?.name}
+        </span>
+      </div>
+
+    </div>
+  </div>
+)}
 
       {/* EPISODE NAME */}
       <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
