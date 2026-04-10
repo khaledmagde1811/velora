@@ -405,53 +405,67 @@ const [scrollY, setScrollY] = useState(0);
           </div>
         )}
         
-        {/* Video Controls Overlay محسن جداً */}
-        {selectedEpisode && !videoError && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-5 opacity-0 hover:opacity-100 transition-all duration-300 z-20">
-            <div className="flex items-center justify-between">
-              <div className="flex gap-3">
-                <button
-                  onClick={toggleFullscreen}
-                  className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-                  title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-                >
-                  {isFullscreen ? (
-                    <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                    </svg>
-                  )}
-                </button>
-                
-                {workingUrls.length > 1 && (
-                  <button
-                    onClick={switchServer}
-                    className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-                    title="تغيير السيرفر"
-                  >
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span className="text-xs font-medium hidden sm:inline">
-                        سيرفر {currentServerIndex + 1}/{workingUrls.length}
-                      </span>
-                    </div>
-                  </button>
-                )}
-              </div>
-              
-              <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5">
-                <span className="text-sm text-white/90 font-medium">
-                  {selectedEpisode?.name}
-                </span>
-              </div>
+{/* Video Controls Overlay محسن */}
+{selectedEpisode && !videoError && (
+  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 sm:p-5 opacity-0 hover:opacity-100 transition-all duration-300 z-20">
+
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+      {/* LEFT CONTROLS */}
+      <div className="flex items-center justify-between sm:justify-start gap-3">
+
+        {/* Fullscreen */}
+        <button
+          onClick={toggleFullscreen}
+          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-3 transition-all active:scale-95"
+          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
+        >
+          {isFullscreen ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          )}
+        </button>
+
+        {/* Server Switch */}
+        {workingUrls.length > 1 && (
+          <button
+            onClick={switchServer}
+            className="relative bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-3 transition-all active:scale-95 group"
+            title="تغيير السيرفر"
+          >
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+
+              <span className="text-xs font-medium hidden sm:inline">
+                سيرفر {currentServerIndex + 1}/{workingUrls.length}
+              </span>
             </div>
-          </div>
+
+            {/* وصف إضافي يظهر فقط في الموبايل */}
+            <div className="absolute -bottom-6 left-0 text-[10px] text-white/60 sm:hidden whitespace-nowrap">
+              لو الفيديو مش شغال جرّب سيرفر تاني
+            </div>
+          </button>
         )}
+      </div>
+
+      {/* EPISODE NAME */}
+      <div className="bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 max-w-[70%] sm:max-w-none">
+        <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
+          {selectedEpisode?.name}
+        </span>
+      </div>
+
+    </div>
+  </div>
+)}
       </div>
       
       {/* TV Show Info - محسن جداً */}
