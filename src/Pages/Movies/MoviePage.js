@@ -300,7 +300,7 @@ const MoviePage = () => {
             
           {/* Video Controls Overlay */}
 {/* Video Controls Overlay */}
-{selectedEpisode && !videoError && (
+{!videoError && currentSource && (
   <div 
     className={`
       absolute left-0 right-0 
@@ -339,7 +339,7 @@ const MoviePage = () => {
         </button>
 
         {/* Server Switch */}
-        {workingUrls.length > 1 && (
+        {workingSources.length > 1 && (
           <button
             onClick={switchServer}
             className="relative bg-transparent text-white/80 hover:text-white active:bg-white/10 rounded-full p-3 transition-all active:scale-95 group"
@@ -350,22 +350,22 @@ const MoviePage = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span className="text-xs font-medium hidden sm:inline">
-                سيرفر {currentServerIndex + 1}/{workingUrls.length}
+                سيرفر {currentServerIndex + 1}/{workingSources.length}
               </span>
             </div>
 
             {/* Mobile hint */}
             <div className="absolute -bottom-6 left-0 text-[10px] text-white/60 sm:hidden whitespace-nowrap">
-اذا لم يعمل قم بتغير السيرفير            
-              </div>
+              لو الفيديو مش شغال جرّب سيرفر تاني
+            </div>
           </button>
         )}
       </div>
 
-      {/* EPISODE NAME */}
+      {/* MOVIE NAME بدل EPISODE */}
       <div className="bg-transparent px-3 py-1.5 max-w-[70%] sm:max-w-none">
         <span className="text-xs sm:text-sm text-white/90 font-medium truncate block">
-          {selectedEpisode?.name}
+          {movie?.title}
         </span>
       </div>
 
