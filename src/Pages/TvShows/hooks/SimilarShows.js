@@ -53,7 +53,7 @@ export const SimilarShows = ({ similarShows, similarShowsLoading, onShowClick })
               <img
                 src={show.poster_path
                   ? `https://image.tmdb.org/t/p/w300${show.poster_path}`
-                  : 'https://via.placeholder.com/300x450?text=No+Image'
+                  : 'https://share.google/WtIWVQuaLAgqUiBRx'
                 }
                 alt={show.name}
                 className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-110"

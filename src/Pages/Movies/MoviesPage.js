@@ -110,12 +110,12 @@ const MovieRow = ({ title, fetchUrl, onMovieClick, onViewAll }) => {
                 <img
                   src={movie.poster_path
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-                    : 'https://via.placeholder.com/300x450?text=No+Image'
+                    : 'https://share.google/WtIWVQuaLAgqUiBRx'
                   }
                   alt={movie.title || movie.name}
                   className="w-full rounded-lg shadow-lg"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/300x450?text=No+Image';
+                    e.target.src = 'https://share.google/WtIWVQuaLAgqUiBRx';
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-lg flex flex-col justify-end p-3">

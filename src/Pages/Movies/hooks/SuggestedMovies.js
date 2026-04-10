@@ -29,7 +29,7 @@ export const SuggestedMovies = ({ suggested, navigate }) => {
               <img
                 src={suggestedMovie.poster_path
                   ? `https://image.tmdb.org/t/p/w300${suggestedMovie.poster_path}`
-                  : 'https://via.placeholder.com/300x450?text=No+Image'
+                  : 'https://share.google/WtIWVQuaLAgqUiBRx'
                 }
                 alt={suggestedMovie.title}
                 className="w-full aspect-[2/3] object-cover transition-transform duration-500 group-hover:scale-110"

@@ -108,7 +108,7 @@ const SearchPage = () => {
                 <img
                   src={movie.poster_path
                     ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                    : 'https://via.placeholder.com/300x450?text=No+Image'
+                    : 'https://share.google/WtIWVQuaLAgqUiBRx'
                   }
                   alt={movie.title}
                   className="search-movie-poster"

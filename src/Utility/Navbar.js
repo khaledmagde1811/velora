@@ -422,7 +422,7 @@ const Navbar = () => {
                             src={
                               item.poster_path
                                 ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-                                : 'https://via.placeholder.com/92x138?text=No+Image'
+                                : 'https://share.google/WtIWVQuaLAgqUiBRx'
                             }
                             alt={item.title || item.name}
                             className="w-12 h-16 object-cover rounded-lg shadow-md flex-shrink-0"

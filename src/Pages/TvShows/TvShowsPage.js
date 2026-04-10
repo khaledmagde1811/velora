@@ -146,13 +146,13 @@ const TvRow = ({ title, fetchUrl, onTvClick, onViewAll }) => {
                   <img
                     src={show.poster_path
                       ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-                      : 'https://via.placeholder.com/300x450?text=No+Image'
+                      : 'https://share.google/WtIWVQuaLAgqUiBRx'
                     }
                     alt={show.name}
                     className="w-full h-[200px] sm:h-[230px] md:h-[260px] lg:h-[280px] object-cover"
                     loading="lazy"
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/300x450?text=No+Image';
+                      e.target.src = 'https://share.google/WtIWVQuaLAgqUiBRx';
                     }}
                   />
                   

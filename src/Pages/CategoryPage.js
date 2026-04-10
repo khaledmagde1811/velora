@@ -130,7 +130,7 @@ const CategoryPage = () => {
           {items.map((item, index) => {
             const posterUrl = item.poster_path
               ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
-              : 'https://via.placeholder.com/300x450?text=No+Image';
+              : 'https://share.google/WtIWVQuaLAgqUiBRx';
 
             return (
               <div
