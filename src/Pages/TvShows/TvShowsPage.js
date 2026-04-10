@@ -1,5 +1,5 @@
 // Pages/TvShows/TvShowsPage.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect,  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import tmdbApi, { tvRequests } from '../../services/tmdb';
 import { Swiper, SwiperSlide } from 'swiper/react';

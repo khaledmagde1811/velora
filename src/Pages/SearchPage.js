@@ -9,11 +9,13 @@ const SearchPage = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+
   const [hasMore, setHasMore] = useState(true);
   
-  const query = new URLSearchParams(location.search).get('q');
-
+const query = React.useMemo(
+  () => new URLSearchParams(location.search).get('q'),
+  [location.search]
+);
   useEffect(() => {
     const searchMovies = async () => {
       if (!query) return;
@@ -31,7 +33,7 @@ const SearchPage = () => {
         } else {
           setMovies(prev => [...prev, ...response.data.results]);
         }
-        setTotalPages(response.data.total_pages);
+    
         setHasMore(page < response.data.total_pages);
       } catch (error) {
         console.error('Search error:', error);

@@ -4,16 +4,7 @@ import movie from '../../pic/movie.jpg'; // ✅ صورة من عندك
 
 function NetflixHero() {
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
 
-  // كشف التمرير لتغيير لون النافبار
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden bg-[#141414]">

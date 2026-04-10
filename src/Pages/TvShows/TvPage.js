@@ -226,14 +226,16 @@ const [scrollY, setScrollY] = useState(0);
   }, [tvShow?.id]);
 
   // ========== إضافة تتبع التمرير للتأثير الـ parallax ==========
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
+useEffect(() => {
+  const handleScroll = () => {
+    setScrollY(window.scrollY);
+  };
+
+  window.addEventListener('scroll', handleScroll);
+  handleScroll();
+
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []);
   // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -840,84 +842,18 @@ const [scrollY, setScrollY] = useState(0);
       </div>
     </div>
   </div>
-  
-  <style>{`
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #1f1f1f;
-      border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #e50914;
-      border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #ff0a1a;
-    }
-    
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    .animate-fadeInUp {
-      animation: fadeInUp 0.5s ease forwards;
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-    
-    .animate-fadeIn {
-      animation: fadeIn 0.5s ease forwards;
-    }
-    
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-    
-    .animate-float {
-      animation: float 3s ease-in-out infinite;
-    }
-    
-    @keyframes spin-slow {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-    
-    .animate-spin-slow {
-      animation: spin-slow 2s linear infinite;
-    }
-  `}</style>
+  {error && (
+  <div className="px-4 md:px-8 lg:px-12 py-4 text-red-400">
+    {error}
+  </div>
+)}
+style={{
+  transform: `translateY(${scrollY * 0.15}px)`,
+  backgroundImage: tvShow.backdrop_path && tvShow.backdrop_path !== null
+    ? `url(https://image.tmdb.org/t/p/original${tvShow.backdrop_path})`
+    : 'none',
+  backgroundColor: !tvShow.backdrop_path ? '#141414' : 'transparent',
+}}
 </div>
   );
 };
