@@ -1,10 +1,9 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ],
-  "buildCommand": "npm run build",
-  "outputDirectory": "build",
-  "devCommand": "npm start",
-  "installCommand": "npm install",
-  "framework": "create-react-app"
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "headers": [
+    {
+      "source": "/sitemap.xml",
+      "headers": [{ "key": "Content-Type", "value": "application/xml" }]
+    }
+  ]
 }
