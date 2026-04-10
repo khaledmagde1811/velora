@@ -1,4 +1,5 @@
-// services/tmdb.js
+// services/tmdb.js - النسخة الصحيحة النهائية
+
 import axios from 'axios';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -8,53 +9,47 @@ if (!ACCESS_TOKEN) {
   console.error('❌ REACT_APP_TMDB_READ_ACCESS_TOKEN is not defined in .env');
 }
 
+// إنشء instance من axios بدون interceptors في البداية
 const tmdbApi = axios.create({
   baseURL: BASE_URL,
   headers: {
-    Authorization: `Bearer ${ACCESS_TOKEN}`,
+    'Authorization': `Bearer ${ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
 
-// Fixed Interceptor: Properly handle params without encoding Arabic in headers
-tmdbApi.interceptors.request.use((config) => {
-  // Initialize params if not present
-  if (!config.params) {
-    config.params = {};
-  }
-  
-  // Add language parameter - use simple ASCII string
-  config.params.language = 'ar-SA';
-  
-  // Custom params serializer to properly handle URL encoding
-  // This ensures all params are properly URL-encoded
-  config.paramsSerializer = (params) => {
-    const searchParams = new URLSearchParams();
-    Object.keys(params).forEach(key => {
-      if (params[key] !== null && params[key] !== undefined) {
-        searchParams.append(key, String(params[key]));
-      }
-    });
-    return searchParams.toString();
-  };
-  
-  console.log(`📡 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-  return config;
-});
-
-tmdbApi.interceptors.response.use(
-  (response) => response,
+// Interceptor للطلبات - بسيط جداً وآمن
+tmdbApi.interceptors.request.use(
+  (config) => {
+    // لا تضيف أي نصوص عربية هنا
+    // اضف language فقط كـ query param
+    if (!config.params) {
+      config.params = {};
+    }
+    
+    config.params.language = 'ar-SA';
+    
+    // لا تغيّر paramsSerializer إذا لم تكن بحاجة
+    // axios يتعامل معها تلقائياً
+    
+    return config;
+  },
   (error) => {
-    // Only log the status and URL, not the full error object
-    const status = error.response?.status || 'unknown';
-    const url = error.response?.config?.url || 'unknown';
-    console.error(`❌ API Error: ${status} - ${url}`);
     return Promise.reject(error);
   }
 );
 
-// ========== روابط المسلسلات (TV Shows) ==========
+// Interceptor للاستجابات
+tmdbApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.message);
+    return Promise.reject(error);
+  }
+);
+
+// ========== TV REQUESTS ==========
 export const tvRequests = {
   fetchTrendingTV: `/trending/tv/week`,
   fetchPopularTV: `/tv/popular`,
@@ -71,7 +66,7 @@ export const tvRequests = {
   fetchArabicTV: `/discover/tv?with_original_language=ar`,
 };
 
-// باقي الكود كما هو بدون تغيير...
+// TV Functions
 export const getTvEmbedUrl = (tmdbId, ds_lang = 'ar') => {
   if (!tmdbId) return null;
   return `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&ds_lang=${ds_lang}&autoplay=1`;
@@ -126,6 +121,9 @@ export const fetchTvDetails = async (tvId) => {
 };
 
 export const fetchAllTvSections = async () => {
+  // لا تضع النصوص العربية في الـ params
+  // استخدم الـ URLs الثابتة من tvRequests فقط
+  
   const sections = [
     { title: 'أشهر المسلسلات', url: tvRequests.fetchTrendingTV },
     { title: 'مسلسلات Netflix الأصلية', url: tvRequests.fetchNetflixTVShows },
@@ -138,25 +136,24 @@ export const fetchAllTvSections = async () => {
     { title: 'مسلسلات دراما', url: tvRequests.fetchDramaTV },
     { title: 'خيال علمي وفانتازيا', url: tvRequests.fetchSciFiFantasyTV },
     { title: 'مسلسلات كرتون', url: tvRequests.fetchAnimationTV },
+    { title: 'مسلسلات وثائقية', url: tvRequests.fetchDocumentaryTV },
     { title: 'مسلسلات عربية', url: tvRequests.fetchArabicTV },
   ];
 
-  try {
-    const results = {};
-    for (const section of sections) {
-      try {
-        const response = await tmdbApi.get(section.url);
-        results[section.title] = response.data.results || [];
-      } catch (sectionError) {
-        console.error(`Error fetching section "${section.title}":`, sectionError.message);
-        results[section.title] = [];
-      }
+  const results = {};
+  
+  for (const section of sections) {
+    try {
+      // استخدم فقط الـ URL المُعرّف
+      const response = await tmdbApi.get(section.url);
+      results[section.title] = response.data.results || [];
+    } catch (sectionError) {
+      console.error(`Error fetching section "${section.title}":`, sectionError.message);
+      results[section.title] = [];
     }
-    return results;
-  } catch (error) {
-    console.error('Error fetching TV sections:', error);
-    return {};
   }
+  
+  return results;
 };
 
 export const fetchRandomTvShow = async () => {
@@ -213,6 +210,7 @@ export const fetchTvEpisodes = async (tvId, seasonNumber) => {
   }
 };
 
+// ========== MOVIE FUNCTIONS ==========
 export const getMovieEmbedUrl = (tmdbId, ds_lang = 'ar') => {
   if (!tmdbId) return null;
   return `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}&ds_lang=${ds_lang}&autoplay=1`;
@@ -277,6 +275,7 @@ export const searchMovies = async (query) => {
   }
 };
 
+// ========== REQUESTS OBJECT (للأفلام) ==========
 export const requests = {
   fetchTrending: `/trending/all/week`,
   fetchNetflixOriginals: `/discover/tv?with_networks=213`,
@@ -300,6 +299,8 @@ export const requests = {
   fetchTopRatedCartoons: `/discover/movie?with_genres=16&vote_average.gte=7&sort_by=vote_average.desc`,
   fetchAnimeMovies: `/discover/movie?with_genres=16&with_original_language=ja&sort_by=popularity.desc`,
   fetchAnimeSeries: `/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc`,
+  fetchScienceFiction: `/discover/movie?with_genres=878`,
+  fetchDrama: `/discover/movie?with_genres=18`,
   ...tvRequests,
 };
 
