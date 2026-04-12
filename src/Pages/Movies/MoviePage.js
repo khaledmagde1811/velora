@@ -57,9 +57,10 @@ const MoviePage = () => {
         {/* Hero Background with parallax effect */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
+           style={{
             backgroundImage: movie.backdrop_path && movie.backdrop_path !== null
-              
+              ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
+              : 'none',
             backgroundColor: !movie.backdrop_path ? '#141414' : 'transparent',
             transform: `translateY(${scrollY * 0.5}px)`,
           }}
