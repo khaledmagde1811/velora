@@ -115,13 +115,11 @@ export const VideoPlayer = ({
     </div>
   )}
   
-  {/* الأزرار - تتغير بناءً على وضع fullscreen */}
+  {/* الأزرار - دائماً في الأعلى */}
   <div className={`
-    absolute left-0 right-0 z-20 transition-all duration-300
-    ${isFullscreen 
-      ? 'top-0 bg-gradient-to-b from-black/90 via-black/50 to-transparent p-5 opacity-0 hover:opacity-100' 
-      : 'bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-5 opacity-0 hover:opacity-100'
-    }
+    absolute top-0 left-0 right-0 z-20 
+    bg-gradient-to-b from-black/90 via-black/50 to-transparent 
+    p-5 transition-all duration-300
   `}>
     <div className="flex items-center justify-between">
       <div className="flex gap-3">
