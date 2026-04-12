@@ -379,7 +379,7 @@ const Navbar = () => {
 
           {/* شريط البحث المنبثق */}
           {showSearch && (
-<div className="absolute left-0 top-full mt-2 w-[95vw] sm:w-96 md:w-[500px] z-50">              <form onSubmit={handleSearchSubmit} className="flex items-center bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
+<div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full mt-2 w-[92vw] sm:w-96 md:w-[500px] z-50">             <form onSubmit={handleSearchSubmit} className="flex items-center bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
                 <input
                   type="text"
                   placeholder="ابحث عن فيلم أو مسلسل..."

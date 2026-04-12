@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { SimilarShows } from './SimilarShows';
 
 export const EpisodeSidebar = ({
   showSidebar,
@@ -9,11 +8,8 @@ export const EpisodeSidebar = ({
   episodes,
   selectedEpisode,
   tvShow,
-  similarShows,
-  similarShowsLoading,
   onSeasonChange,
   onEpisodeChange,
-  navigate, // Add navigate as prop
 }) => {
   const [activeTab, setActiveTab] = useState('episodes');
 
@@ -22,18 +18,16 @@ export const EpisodeSidebar = ({
       showSidebar ? 'block' : 'hidden lg:block'
     }`}>
       <div className="px-4 md:px-8 lg:px-12 py-8">
-        {/* Mobile Tabs */}
         <div className="lg:hidden flex gap-3 mb-8">
           {[
-            { id: 'episodes', label: ' الحلقات', icon: '' },
-            { id: 'details', label: ' التفاصيل', icon: '' },
-            { id: 'similar', label: ' مقترحات', icon: '' }
+            { id: 'episodes', label: 'الحلقات' },
+            { id: 'details', label: 'التفاصيل' },
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-3.5 text-center font-medium rounded-xl transition-all duration-300 ${
-                activeTab === tab.id 
+                activeTab === tab.id
                   ? 'bg-gradient-to-r from-[#e50914] to-[#b20710] text-white shadow-lg transform scale-105'
                   : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700'
               }`}
@@ -42,7 +36,7 @@ export const EpisodeSidebar = ({
             </button>
           ))}
         </div>
-        
+
         {/* Seasons */}
         <div className="mb-8">
           <h3 className="text-[#e50914] font-semibold mb-4 flex items-center gap-2 text-lg">
@@ -70,8 +64,8 @@ export const EpisodeSidebar = ({
             ))}
           </div>
         </div>
-        
-        {/* Episodes List */}
+
+        {/* Episodes */}
         <div className={`${activeTab === 'episodes' ? 'block' : 'hidden lg:block'}`}>
           <h3 className="text-white font-semibold mb-4 flex items-center gap-2 text-lg">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +93,6 @@ export const EpisodeSidebar = ({
                 }`}>
                   {episode.episode_number}
                 </div>
-                
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <h4 className="font-semibold text-sm md:text-base truncate group-hover:text-[#e50914] transition-colors">
@@ -125,7 +118,6 @@ export const EpisodeSidebar = ({
                     </p>
                   )}
                 </div>
-                
                 {selectedEpisode?.id === episode.id && (
                   <div className="flex-shrink-0">
                     <svg className="w-6 h-6 text-[#e50914] animate-pulse" fill="currentColor" viewBox="0 0 24 24">
@@ -137,72 +129,45 @@ export const EpisodeSidebar = ({
             ))}
           </div>
         </div>
-        
+
         {/* Details Tab */}
         <div className={`${activeTab === 'details' ? 'block' : 'hidden lg:hidden'}`}>
           <div className="space-y-8">
             {tvShow.poster_path && (
-              <div className="lg:hidden w-40 mx-auto rounded-2xl overflow-hidden shadow-2xl transform transition-all duration-300 hover:scale-105">
-                <img 
-                  src={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`}
-                  alt={tvShow.name}
-                  className="w-full h-auto"
-                />
+              <div className="lg:hidden w-40 mx-auto rounded-2xl overflow-hidden shadow-2xl">
+                <img src={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} alt={tvShow.name} className="w-full h-auto" />
               </div>
             )}
-            
             {tvShow.overview && (
               <div className="bg-gray-800/30 rounded-2xl p-6">
-                <h4 className="text-[#e50914] font-semibold mb-3 flex items-center gap-2 text-lg">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                  القصة
-                </h4>
+                <h4 className="text-[#e50914] font-semibold mb-3 flex items-center gap-2 text-lg">القصة</h4>
                 <p className="text-gray-300 text-sm leading-relaxed">{tvShow.overview}</p>
               </div>
             )}
-            
             {tvShow.genres && tvShow.genres.length > 0 && (
               <div className="bg-gray-800/30 rounded-2xl p-6">
-                <h4 className="text-[#e50914] font-semibold mb-3 flex items-center gap-2 text-lg">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
-                  </svg>
-                  التصنيفات
-                </h4>
+                <h4 className="text-[#e50914] font-semibold mb-3 text-lg">التصنيفات</h4>
                 <div className="flex flex-wrap gap-2">
                   {tvShow.genres.map((genre) => (
-                    <span key={genre.id} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-full text-sm transition-all duration-300 cursor-pointer">
+                    <span key={genre.id} className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-full text-sm transition-all duration-300">
                       {genre.name}
                     </span>
                   ))}
                 </div>
               </div>
             )}
-            
             <div className="bg-gray-800/30 rounded-2xl p-6">
-              <h4 className="text-[#e50914] font-semibold mb-4 flex items-center gap-2 text-lg">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                معلومات إضافية
-              </h4>
+              <h4 className="text-[#e50914] font-semibold mb-4 text-lg">معلومات إضافية</h4>
               <div className="space-y-3 text-sm">
                 {[
                   { label: 'تاريخ العرض', value: tvShow.first_air_date || 'غير معروف', icon: '📅' },
                   { label: 'التقييم', value: `⭐ ${tvShow.vote_average?.toFixed(1)}/10`, icon: '🎯' },
-                  { label: 'عدد الأصوات', value: tvShow.vote_count?.toLocaleString(), icon: '👥' },
                   { label: 'عدد المواسم', value: tvShow.number_of_seasons, icon: '📚' },
                   { label: 'عدد الحلقات', value: tvShow.number_of_episodes, icon: '🎬' },
                   { label: 'الحالة', value: tvShow.status || 'غير معروف', icon: '📺' },
-                  { label: 'اللغة الأصلية', value: tvShow.original_language?.toUpperCase() || 'غير معروف', icon: '🌐' }
                 ].map(info => (
-                  <div key={info.label} className="flex justify-between items-center py-3 border-b border-gray-700 last:border-0 group hover:bg-gray-700/30 px-3 rounded-lg transition-all">
-                    <span className="text-gray-400 flex items-center gap-2">
-                      <span>{info.icon}</span>
-                      <span>{info.label}</span>
-                    </span>
+                  <div key={info.label} className="flex justify-between items-center py-3 border-b border-gray-700 last:border-0 px-3 rounded-lg">
+                    <span className="text-gray-400">{info.icon} {info.label}</span>
                     <span className="text-white font-medium">{info.value}</span>
                   </div>
                 ))}
@@ -210,15 +175,6 @@ export const EpisodeSidebar = ({
             </div>
           </div>
         </div>
-        
-        {/* Similar Shows */}
-   <div className="block lg:block">
-      <SimilarShows 
-        similarShows={similarShows}
-        similarShowsLoading={similarShowsLoading}
-        onShowClick={(id) => navigate(`/tv/${id}`)}
-      />
-    </div>
       </div>
     </div>
   );

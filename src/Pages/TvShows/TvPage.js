@@ -10,6 +10,7 @@ import { ErrorState } from './hooks/ErrorState';
 import { VideoPlayer } from './hooks/VideoPlayer';
 import { TvInfoSection } from './hooks/TvInfoSection';
 import { EpisodeSidebar } from './hooks/EpisodeSidebar';
+import { SimilarShows } from './hooks/SimilarShows';
 
 const TvPage = () => {
   const { id } = useParams();
@@ -166,6 +167,11 @@ const TvPage = () => {
           
 
           />
+          <SimilarShows
+  similarShows={similarShows}
+  similarShowsLoading={similarShowsLoading}
+  navigate={navigate}
+/>
         </div>
       </div>
 
