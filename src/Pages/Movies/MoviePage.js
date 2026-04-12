@@ -36,8 +36,21 @@ const MoviePage = () => {
 
   // Reset scroll to top when movie changes
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
+
+  // منع scroll الجسم عندما يكون الفيديو في وضع fullscreen
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isFullscreen]);
 
   // Show loading state
   if (loading && !movie) {
@@ -61,6 +74,9 @@ const MoviePage = () => {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
+            backgroundImage: movie.backdrop_path 
+              ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
+              : 'none',
             backgroundColor: !movie.backdrop_path ? '#141414' : 'transparent',
           }}
         />
@@ -71,7 +87,6 @@ const MoviePage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent" />
 
         <div className="relative z-10">
-
           <VideoPlayer
             isFullscreen={isFullscreen}
             playerContainerRef={playerContainerRef}
@@ -94,6 +109,31 @@ const MoviePage = () => {
           <SuggestedMovies suggested={suggested} navigate={navigate} />
         </div>
       </div>
+
+      {/* CSS إضافي للتحكم في الـ Scroll */}
+      <style>{`
+        /* منع أي فراغات إضافية */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        /* التأكد من أن المحتوى يتحكم في طول الصفحة */
+        body {
+          overflow-x: hidden;
+        }
+        
+        /* منع الـ scroll الزائد */
+        .min-h-screen {
+          min-height: 100vh;
+        }
+        
+        /* تحسين تجربة الـ scroll */
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
     </div>
   );
 };
