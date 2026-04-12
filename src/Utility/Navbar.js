@@ -379,16 +379,14 @@ const Navbar = () => {
 
           {/* شريط البحث المنبثق */}
           {showSearch && (
-            <div className="absolute left-0 top-full mt-2 w-screen max-w-[calc(100vw-2rem)] sm:w-96 md:w-[500px] z-50">
-              <form onSubmit={handleSearchSubmit} className="flex items-center bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
+<div className="absolute left-0 top-full mt-2 w-[95vw] sm:w-96 md:w-[500px] z-50">              <form onSubmit={handleSearchSubmit} className="flex items-center bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
                 <input
                   type="text"
                   placeholder="ابحث عن فيلم أو مسلسل..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoFocus
-                  className="flex-1 bg-transparent text-white text-sm md:text-base px-4 py-3 outline-none placeholder-gray-500 text-right"
-                />
+className="flex-1 bg-transparent text-white text-sm px-3 py-3 outline-none placeholder-gray-500 text-right min-w-0"                />
                 <button
                   type="submit"
                   className="px-4 py-3 text-gray-400 hover:text-white transition-colors border-r border-white/10"
@@ -401,8 +399,7 @@ const Navbar = () => {
 
               {/* نتائج البحث */}
               {(searchQuery.length >= 2 || searchLoading) && (
-                <div className="mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-96 overflow-y-auto">
-                  {searchLoading ? (
+<div className="mt-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[60vh] sm:max-h-96 overflow-y-auto">                  {searchLoading ? (
                     <div className="flex items-center justify-center gap-3 px-4 py-8">
                       <div className="w-5 h-5 border-2 border-gray-500 border-t-red-600 rounded-full animate-spin" />
                       <span className="text-gray-400 text-sm">جاري البحث...</span>
@@ -425,8 +422,7 @@ const Navbar = () => {
                                 : 'https://share.google/WtIWVQuaLAgqUiBRx'
                             }
                             alt={item.title || item.name}
-                            className="w-12 h-16 object-cover rounded-lg shadow-md flex-shrink-0"
-                          />
+className="w-10 h-14 sm:w-12 sm:h-16 object-cover rounded-lg shadow-md flex-shrink-0"                          />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap justify-end">
                               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
@@ -436,7 +432,7 @@ const Navbar = () => {
                               }`}>
                                 {item.media_type === 'movie' ? 'فيلم' : 'مسلسل'}
                               </span>
-                              <span className="text-sm font-medium text-white group-hover:text-red-500 transition-colors truncate">
+                              <span className="text-xs sm:text-sm font-medium text-white group-hover:text-red-500 transition-colors truncate max-w-[150px] sm:max-w-full">
                                 {item.title || item.name}
                               </span>
                             </div>

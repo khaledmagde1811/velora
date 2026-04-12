@@ -124,6 +124,8 @@ const TvPage = () => {
             toggleFullscreen={toggleFullscreen}
             resetPlayer={resetPlayer}
             setShowSidebar={setShowSidebar}
+            episodes={episodes}
+            onEpisodeChange={handleEpisodeChange}
           />
 
           <TvInfoSection tvShow={tvShow} />
@@ -161,6 +163,8 @@ const TvPage = () => {
             onSeasonChange={handleSeasonChange}
             onEpisodeChange={handleEpisodeChange}
             navigate={navigate}
+          
+
           />
         </div>
       </div>
