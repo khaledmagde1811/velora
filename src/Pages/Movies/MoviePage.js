@@ -34,59 +34,69 @@ const MoviePage = () => {
     window.location.reload();
   }, []);
 
-  // Reset scroll to top when movie changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [id]);
 
-  // منع scroll الجسم عندما يكون الفيديو في وضع fullscreen
   useEffect(() => {
-    if (isFullscreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    
+    // ✅ التحكم في body overflow بس عند الـ fullscreen
+    document.body.style.overflow = isFullscreen ? 'hidden' : '';
+    document.body.style.margin = '0';         // ✅ منع margin زيادة
+    document.body.style.padding = '0';        // ✅ منع padding زيادة
+    document.documentElement.style.overflow = isFullscreen ? 'hidden' : ''; // ✅ fix html overflow
+
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [isFullscreen]);
 
-  // Show loading state
-  if (loading && !movie) {
-    return <LoadingState />;
-  }
-
-  // Show error state
-  if (error) {
-    return <ErrorState message={error} onRetry={handleRetry} />;
-  }
-
-  // Don't render if no movie data
-  if (!movie) {
-    return null;
-  }
+  if (loading && !movie) return <LoadingState />;
+  if (error) return <ErrorState message={error} onRetry={handleRetry} />;
+  if (!movie) return null;
 
   return (
-    <div className="bg-[#141414] min-h-screen text-white overflow-x-hidden">
-      <div className="relative">
-        {/* Hero Background - بدون parallax وتأثيرات حركة */}
+    // ✅ حذف min-h-screen واستبدالها بـ h-full + overflow-x-hidden بس
+    <div
+      style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}
+    >
+      {/* ✅ الـ relative container بـ overflow hidden لمنع خروج الـ absolute elements */}
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+
+        {/* Hero Background */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: movie.backdrop_path 
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: movie.backdrop_path
               ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
               : 'none',
             backgroundColor: !movie.backdrop_path ? '#141414' : 'transparent',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            // ✅ تحديد ارتفاع ثابت للـ hero بدل ما يمتد للصفحة كلها
+            height: '100%',
+            zIndex: 0,
           }}
         />
 
         {/* Overlay Layers */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#141414] via-[#141414]/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-transparent" />
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: 'linear-gradient(to top, #141414, rgba(20,20,20,0.8), transparent)'
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: 'linear-gradient(to right, #141414, rgba(20,20,20,0.3), transparent)'
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent, transparent)'
+        }} />
 
-        <div className="relative z-10">
+        {/* ✅ المحتوى بـ position relative وزindex أعلى من الـ overlays */}
+        <div style={{ position: 'relative', zIndex: 10 }}>
           <VideoPlayer
             isFullscreen={isFullscreen}
             playerContainerRef={playerContainerRef}
@@ -109,31 +119,6 @@ const MoviePage = () => {
           <SuggestedMovies suggested={suggested} navigate={navigate} />
         </div>
       </div>
-
-      {/* CSS إضافي للتحكم في الـ Scroll */}
-      <style>{`
-        /* منع أي فراغات إضافية */
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
-        /* التأكد من أن المحتوى يتحكم في طول الصفحة */
-        body {
-          overflow-x: hidden;
-        }
-        
-        /* منع الـ scroll الزائد */
-        .min-h-screen {
-          min-height: 100vh;
-        }
-        
-        /* تحسين تجربة الـ scroll */
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
     </div>
   );
 };
