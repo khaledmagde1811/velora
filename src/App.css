@@ -922,3 +922,11 @@ h2, h3, h4, h5, h6 {
   color: white;
   text-align: center;
 }
+.app-content {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.app-visible {
+  opacity: 1;
+}
