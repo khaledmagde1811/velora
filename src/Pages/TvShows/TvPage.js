@@ -1,4 +1,4 @@
-// Pages/TvPage.jsx - الكود الصحيح بعد التعديل
+
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTvData } from './hooks/useTvData';
@@ -11,6 +11,7 @@ import { VideoPlayer } from './hooks/VideoPlayer';
 import { TvInfoSection } from './hooks/TvInfoSection';
 import { EpisodeSidebar } from './hooks/EpisodeSidebar';
 import { SimilarShows } from './hooks/SimilarShows';
+import { useUserLists } from '../../context/UserListsContext';
 
 const TvPage = () => {
   const { id } = useParams();
@@ -44,6 +45,15 @@ const TvPage = () => {
     switchServer,
     resetPlayer,
   } = useVideoPlayer(id, selectedSeason, selectedEpisode);
+
+  const {
+    toggleFavorite,
+    isInFavorites,
+    toggleWatchLater,
+    isInWatchLater,
+    toggleWatching,
+    isWatching,
+  } = useUserLists();
 
   const handleRetry = useCallback(() => {
     window.location.reload();
@@ -119,7 +129,15 @@ const TvPage = () => {
             switchServer={switchServer}
             toggleFullscreen={toggleFullscreen}
             resetPlayer={resetPlayer}
-            
+            setShowSidebar={setShowSidebar}
+            episodes={episodes}
+            onEpisodeChange={handleEpisodeChange}
+            toggleFavorite={toggleFavorite}
+            isInFavorites={isInFavorites}
+            toggleWatchLater={toggleWatchLater}
+            isInWatchLater={isInWatchLater}
+            toggleWatching={toggleWatching}
+            isWatching={isWatching}
           />
    
           <TvInfoSection tvShow={tvShow} />
