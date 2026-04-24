@@ -1,6 +1,7 @@
-
+// Pages/TvPage.jsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useTvData } from './hooks/useTvData';
 import { useVideoPlayer } from './hooks/useVideoPlayer';
 import { useFullscreen } from './hooks/useFullscreen';
@@ -77,6 +78,17 @@ const TvPage = () => {
 
   return (
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
+
+      <Helmet>
+        <title>{tvShow.name} - مشاهدة اون لاين | Velora</title>
+        <meta name="description" content={tvShow.overview?.slice(0, 155)} />
+        <meta property="og:title" content={tvShow.name} />
+        <meta property="og:description" content={tvShow.overview?.slice(0, 155)} />
+        <meta property="og:image" content={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} />
+        <meta property="og:url" content={`https://www.veloravelora.online/tv/${id}`} />
+        <meta property="og:type" content="video.tv_show" />
+        <link rel="canonical" href={`https://www.veloravelora.online/tv/${id}`} />
+      </Helmet>
       
       <div style={{ position: 'relative', overflow: 'hidden' }}>
 
