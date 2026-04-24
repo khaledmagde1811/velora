@@ -12,54 +12,63 @@ export const useTvData = (tvId) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!tvId) return;
+
     const loadTvData = async () => {
-      if (!tvId) return;
-      
       setLoading(true);
       setError(null);
-      
+
       try {
+        // 1. جلب بيانات المسلسل
         const tvData = await fetchTvDetails(tvId);
-        
-        if (!tvData || !tvData.first_air_date) {
+        console.log('✅ tvData:', tvData); // ← أضفناها للتشخيص
+
+        if (!tvData) {
           setError('المسلسل غير موجود');
           return;
         }
-        
+
+        // ✅ شيلنا شرط first_air_date - كان بيحجب مسلسلات كتير
         setTvShow(tvData);
-        
+
+        // 2. جلب المواسم
         const tvSeasons = await fetchTvSeasons(tvId);
+        console.log('✅ tvSeasons:', tvSeasons); // ← للتشخيص
         setSeasons(tvSeasons);
-        
+
         if (tvSeasons.length > 0) {
           const firstSeason = tvSeasons[0];
           setSelectedSeason(firstSeason);
-          
-          const seasonEpisodes = await fetchTvEpisodes(tvId, firstSeason.season_number);
+
+          // 3. جلب حلقات أول موسم
+          const seasonEpisodes = await fetchTvEpisodes(
+            tvId,
+            firstSeason.season_number
+          );
+          console.log('✅ seasonEpisodes:', seasonEpisodes); // ← للتشخيص
           setEpisodes(seasonEpisodes);
-          
+
           if (seasonEpisodes.length > 0) {
             setSelectedEpisode(seasonEpisodes[0]);
           }
         }
       } catch (err) {
-        console.error('❌ Error:', err);
+        console.error('❌ useTvData Error:', err);
         setError('حدث خطأ في تحميل بيانات المسلسل');
       } finally {
         setLoading(false);
       }
     };
-    
+
     loadTvData();
   }, [tvId]);
 
+  // باقي الكود زي ما هو...
   const handleSeasonChange = useCallback(async (season) => {
     if (!tvId) return;
-    
     setSelectedSeason(season);
     setLoading(true);
     setError(null);
-    
     try {
       const seasonEpisodes = await fetchTvEpisodes(tvId, season.season_number);
       setEpisodes(seasonEpisodes);
