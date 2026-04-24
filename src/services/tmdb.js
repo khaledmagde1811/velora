@@ -20,18 +20,17 @@ const tmdbApi = axios.create({
 });
 
 // Interceptor للطلبات - بسيط جداً وآمن
+// Interceptor للطلبات - بعد التعديل
 tmdbApi.interceptors.request.use(
   (config) => {
-    // لا تضيف أي نصوص عربية هنا
-    // اضف language فقط كـ query param
     if (!config.params) {
       config.params = {};
     }
     
-    config.params.language = 'ar-SA';
-    
-    // لا تغيّر paramsSerializer إذا لم تكن بحاجة
-    // axios يتعامل معها تلقائياً
+    // ✅ فقط أضف اللغة إذا كان الطلب مش للبحث
+    if (!config.url.includes('/search/')) {
+      config.params.language = 'ar-SA';
+    }
     
     return config;
   },
