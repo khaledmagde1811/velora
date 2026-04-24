@@ -119,7 +119,7 @@ const TvPage = () => {
             switchServer={switchServer}
             toggleFullscreen={toggleFullscreen}
             resetPlayer={resetPlayer}
-            setShowSidebar={setShowSidebar}
+            
           />
    
           <TvInfoSection tvShow={tvShow} />
