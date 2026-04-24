@@ -107,27 +107,25 @@ const TvPage = () => {
         }} />
 
         <div style={{ position: 'relative', zIndex: 10 }}>
-          <VideoPlayer
-            isFullscreen={isFullscreen}
-            playerContainerRef={playerContainerRef}
-            selectedEpisode={selectedEpisode}
-            selectedSeason={selectedSeason}
-            tvShow={tvShow}
-            currentVideoUrl={currentVideoUrl}
-            videoError={videoError}
-            isVideoLoading={isVideoLoading}
-            iframeKey={iframeKey}
-            workingUrls={workingUrls}
-            currentServerIndex={currentServerIndex}
-            handleIframeLoad={handleIframeLoad}
-            handleIframeError={handleIframeError}
-            switchServer={switchServer}
-            toggleFullscreen={toggleFullscreen}
-            resetPlayer={resetPlayer}
-            setShowSidebar={setShowSidebar}
-            episodes={episodes}
-            onEpisodeChange={handleEpisodeChange}
-          />
+         <VideoPlayer
+  isFullscreen={isFullscreen}
+  playerContainerRef={playerContainerRef}
+  selectedEpisode={selectedEpisode}
+  selectedSeason={selectedSeason}
+  tvShow={tvShow}
+  currentVideoUrl={currentVideoUrl}
+  videoError={videoError}
+  isVideoLoading={isVideoLoading}
+  iframeKey={iframeKey}
+  workingUrls={workingUrls}
+  currentServerIndex={currentServerIndex}
+  handleIframeLoad={handleIframeLoad}
+  handleIframeError={handleIframeError}
+  switchServer={switchServer}
+  toggleFullscreen={toggleFullscreen}
+  resetPlayer={resetPlayer}
+  setShowSidebar={setShowSidebar}
+/>
 
           <TvInfoSection tvShow={tvShow} />
 
@@ -152,21 +150,19 @@ const TvPage = () => {
           </div>
 
           <EpisodeSidebar
-            showSidebar={showSidebar}
-            setShowSidebar={setShowSidebar}
-            seasons={seasons}
-            selectedSeason={selectedSeason}
-            episodes={episodes}
-            selectedEpisode={selectedEpisode}
-            tvShow={tvShow}
-            similarShows={similarShows}
-            similarShowsLoading={similarShowsLoading}
-            onSeasonChange={handleSeasonChange}
-            onEpisodeChange={handleEpisodeChange}
-            navigate={navigate}
-          
-
-          />
+  showSidebar={showSidebar}
+  setShowSidebar={setShowSidebar}
+  seasons={seasons}
+  selectedSeason={selectedSeason}
+  episodes={episodes}
+  selectedEpisode={selectedEpisode}
+  tvShow={tvShow}
+  similarShows={similarShows}
+  similarShowsLoading={similarShowsLoading}
+  onSeasonChange={handleSeasonChange}
+  onEpisodeChange={handleEpisodeChange}
+  navigate={navigate}
+/>
           <SimilarShows
   similarShows={similarShows}
   similarShowsLoading={similarShowsLoading}
