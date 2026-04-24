@@ -1,5 +1,5 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor = 'text-red-500', label }) => (
   <button
@@ -54,6 +54,25 @@ export const VideoPlayer = ({
 }) => {
 
   const [showControls, setShowControls] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  let hideTimeout = null;
+
+  // كشف إذا كان الجهاز محمول
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // تنظيف الـ timeout عند إلغاء تحميل المكون
+  useEffect(() => {
+    return () => {
+      if (hideTimeout) clearTimeout(hideTimeout);
+    };
+  }, []);
 
   const ControlsBar = () => (
     <div className={`
@@ -118,12 +137,45 @@ export const VideoPlayer = ({
     </div>
   );
 
+  // دالة للتعامل مع إظهار وإخفاء الأزرار على المحمول
+  const handleMouseEnter = () => {
+    if (hideTimeout) clearTimeout(hideTimeout);
+    setShowControls(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (isMobile && isFullscreen) {
+      // على المحمول في وضع ملء الشاشة: نخفي الأزرار بعد 3 ثواني
+      hideTimeout = setTimeout(() => {
+        setShowControls(false);
+      }, 3000);
+    } else {
+      setShowControls(false);
+    }
+  };
+
+  const handleClick = () => {
+    // على المحمول وفي وضع ملء الشاشة، نضغط لإظهار/إخفاء الأزرار
+    if (isMobile && isFullscreen) {
+      if (hideTimeout) clearTimeout(hideTimeout);
+      setShowControls(!showControls);
+      
+      // إذا تم إظهار الأزرار، نخفيها تلقائياً بعد 3 ثواني
+      if (!showControls) {
+        hideTimeout = setTimeout(() => {
+          setShowControls(false);
+        }, 3000);
+      }
+    }
+  };
+
   return (
     <>
       <div
         ref={playerContainerRef}
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
         className={`
           relative w-full bg-black transition-all duration-700 ease-out
           ${isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'}
@@ -192,14 +244,29 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* controls تظهر عند hover سواء fullscreen أو لأ */}
-        <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} ${
+        {/* Controls - تظهر بشكل مختلف على المحمول */}
+        <div className={`transition-opacity duration-300 ${
+          (isMobile && isFullscreen && (videoError || !currentVideoUrl)) 
+            ? 'opacity-100'  // في حالة الخطأ على المحمول، تظهر الأزرار دائماً
+            : (showControls ? 'opacity-100' : 'opacity-0')
+        } ${
           isFullscreen
             ? 'absolute top-0 left-0 right-0 z-20'
             : 'absolute bottom-0 left-0 right-0 z-20'
         }`}>
           <ControlsBar />
         </div>
+
+        {/* إضافة مؤشر للإشارة إلى إمكانية النقر على المحمول في وضع ملء الشاشة */}
+        {isMobile && isFullscreen && !videoError && currentVideoUrl && !showControls && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+            <div className="bg-black/50 backdrop-blur-md rounded-full p-2 animate-pulse">
+              <svg className="w-8 h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.5 4.5l-4 4" />
+              </svg>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

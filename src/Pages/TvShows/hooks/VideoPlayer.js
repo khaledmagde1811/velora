@@ -1,5 +1,5 @@
 // Pages/TvShows/hooks/VideoPlayer.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
@@ -59,6 +59,17 @@ export const VideoPlayer = ({
 }) => {
 
   const [showControls, setShowControls] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // كشف إذا كان الجهاز محمول
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const currentIndex = episodes?.findIndex(ep => ep.id === selectedEpisode?.id) ?? -1;
   const prevEpisode  = currentIndex > 0 ? episodes[currentIndex - 1] : null;
@@ -163,7 +174,12 @@ export const VideoPlayer = ({
       <div
         ref={playerContainerRef}
         onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
+        onMouseLeave={() => {
+          // على المحمول، لا نخفي الأزرار في حالة الخطأ أو عدم وجود حلقة
+          if (!isMobile || (!videoError && selectedEpisode)) {
+            setShowControls(false);
+          }
+        }}
         className={`relative w-full bg-black transition-all duration-700 ease-out ${
           isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
         }`}
@@ -195,7 +211,12 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} ${
+        {/* في حالة الخطأ أو عدم وجود حلقة، نظهر الأزرار دائماً على المحمول */}
+        <div className={`transition-opacity duration-300 ${
+          (isMobile && (videoError || !selectedEpisode)) 
+            ? 'opacity-100' 
+            : (showControls ? 'opacity-100' : 'opacity-0')
+        } ${
           isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'
         }`}>
           <ControlsBar />
@@ -209,7 +230,21 @@ export const VideoPlayer = ({
     <div
       ref={playerContainerRef}
       onMouseEnter={() => setShowControls(true)}
-      onMouseLeave={() => setShowControls(false)}
+      onMouseLeave={() => {
+        // على المحمول وفي وضع ملء الشاشة، نخفي الأزرار تلقائياً بعد 3 ثواني
+        if (isMobile && isFullscreen) {
+          // نستخدم setTimeout لإخفاء الأزرار بعد فترة
+          const timer = setTimeout(() => setShowControls(false), 3000);
+          return () => clearTimeout(timer);
+        }
+        setShowControls(false);
+      }}
+      onClick={() => {
+        // على المحمول وفي وضع ملء الشاشة، نضغط لإظهار/إخفاء الأزرار
+        if (isMobile && isFullscreen) {
+          setShowControls(!showControls);
+        }
+      }}
       className={`relative w-full bg-black transition-all duration-700 ease-out ${
         isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
       }`}
@@ -239,11 +274,27 @@ export const VideoPlayer = ({
         </div>
       )}
 
-      <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} ${
+      {/* شريط التحكم - يظهر بشكل مختلف على المحمول في وضع ملء الشاشة */}
+      <div className={`transition-opacity duration-300 ${
+        isMobile && isFullscreen 
+          ? (showControls ? 'opacity-100' : 'opacity-0')  // على المحمول في وضع ملء الشاشة: يظهر فقط عند النقر
+          : (showControls ? 'opacity-100' : 'opacity-0')   // في الحالات الأخرى: يظهر عند hover
+      } ${
         isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'
       }`}>
         <ControlsBar />
       </div>
+
+      {/* إضافة مؤشر للإشارة إلى إمكانية النقر على المحمول في وضع ملء الشاشة */}
+      {isMobile && isFullscreen && !showControls && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <div className="bg-black/50 backdrop-blur-md rounded-full p-2">
+            <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.5 4.5l-4 4" />
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
