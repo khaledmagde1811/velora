@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-
 import Homepage from './Pages/Homepage';
 import MoviesPagde from './Pages/Movies/MoviesPage';
 import MoviePage from './Pages/Movies/MoviePage';
@@ -15,6 +14,8 @@ import TvCategoryPage from './Pages/TvShows/hooks/TvCategoryPage';
 import Footer from './Utility/Footer';
 import ScrollToTop from './Utility/ScrollToTop';
 import Loader from './Utility/Loader';
+import { UserListsProvider } from './context/UserListsContext'; import { WatchLaterPage, FavoritesPage, CurrentlyWatchingPage } from './context/Userpages';
+
 import './App.css';
 
 function App() {
@@ -35,21 +36,26 @@ function App() {
         transition: 'opacity 1.2s ease',
       }}>
         <HelmetProvider>
-          <BrowserRouter>
-            <ScrollToTop />
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/tv/:id" element={<TvPage />} />
-              <Route path="/tvshows" element={<TvShowsPage />} />
-              <Route path="/movie/:id" element={<MoviePage />} />
-              <Route path="/moviespagde" element={<MoviesPagde />} />
-              <Route path="/category/:categoryName" element={<CategoryPage />} />
-              <Route path="/tv-category/:categoryName" element={<TvCategoryPage />} />
-              <Route path="/search" element={<SearchPage />} />
-            </Routes>
-            <Footer />
-          </BrowserRouter>
+          <UserListsProvider>
+            <BrowserRouter>
+              <ScrollToTop />
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="/tv/:id" element={<TvPage />} />
+                <Route path="/tvshows" element={<TvShowsPage />} />
+                <Route path="/movie/:id" element={<MoviePage />} />
+                <Route path="/moviespagde" element={<MoviesPagde />} />
+                <Route path="/category/:categoryName" element={<CategoryPage />} />
+                <Route path="/tv-category/:categoryName" element={<TvCategoryPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/watch-later" element={<WatchLaterPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/currently-watching" element={<CurrentlyWatchingPage />} />
+              </Routes>
+              <Footer />
+            </BrowserRouter>
+          </UserListsProvider>
         </HelmetProvider>
       </div>
 

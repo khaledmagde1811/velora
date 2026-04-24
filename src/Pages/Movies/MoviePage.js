@@ -3,16 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useMovieData } from './hooks/useMovieData';
 import { useVideoPlayer } from './hooks/useVideoPlayer';
 import { useFullscreen } from './hooks/useFullscreen';
-
 import { LoadingState } from './hooks/LoadingState';
 import { ErrorState } from './hooks/ErrorState';
 import { VideoPlayer } from './hooks/VideoPlayer';
 import { MovieInfoSection } from './hooks/MovieInfoSection';
 import { SuggestedMovies } from './hooks/SuggestedMovies';
+import { useUserLists } from '../../context/UserListsContext';
 
 const MoviePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // ✅ جوه الـ component صح
+  const {
+    toggleFavorite,
+    isInFavorites,
+    toggleWatchLater,
+    isInWatchLater,
+    toggleWatching,
+    isWatching,
+  } = useUserLists();
 
   const { isFullscreen, toggleFullscreen, playerContainerRef } = useFullscreen();
   const { movie, loading, error, suggested } = useMovieData(id);
@@ -39,12 +49,10 @@ const MoviePage = () => {
   }, [id]);
 
   useEffect(() => {
-    // ✅ التحكم في body overflow بس عند الـ fullscreen
     document.body.style.overflow = isFullscreen ? 'hidden' : '';
-    document.body.style.margin = '0';         // ✅ منع margin زيادة
-    document.body.style.padding = '0';        // ✅ منع padding زيادة
-    document.documentElement.style.overflow = isFullscreen ? 'hidden' : ''; // ✅ fix html overflow
-
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    document.documentElement.style.overflow = isFullscreen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
@@ -56,46 +64,28 @@ const MoviePage = () => {
   if (!movie) return null;
 
   return (
-    // ✅ حذف min-h-screen واستبدالها بـ h-full + overflow-x-hidden بس
-    <div
-      style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}
-    >
-      {/* ✅ الـ relative container بـ overflow hidden لمنع خروج الـ absolute elements */}
+    <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
       <div style={{ position: 'relative', overflow: 'hidden' }}>
 
         {/* Hero Background */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: movie.backdrop_path
-              ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
-              : 'none',
-            backgroundColor: !movie.backdrop_path ? '#141414' : 'transparent',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            // ✅ تحديد ارتفاع ثابت للـ hero بدل ما يمتد للصفحة كلها
-            height: '100%',
-            zIndex: 0,
-          }}
-        />
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: movie.backdrop_path
+            ? `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
+            : 'none',
+          backgroundColor: !movie.backdrop_path ? '#141414' : 'transparent',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          height: '100%',
+          zIndex: 0,
+        }} />
 
         {/* Overlay Layers */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to top, #141414, rgba(20,20,20,0.8), transparent)'
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to right, #141414, rgba(20,20,20,0.3), transparent)'
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent, transparent)'
-        }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to top, #141414, rgba(20,20,20,0.8), transparent)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, #141414, rgba(20,20,20,0.3), transparent)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent, transparent)' }} />
 
-        {/* ✅ المحتوى بـ position relative وزindex أعلى من الـ overlays */}
         <div style={{ position: 'relative', zIndex: 10 }}>
           <VideoPlayer
             isFullscreen={isFullscreen}
@@ -112,10 +102,17 @@ const MoviePage = () => {
             switchServer={switchServer}
             toggleFullscreen={toggleFullscreen}
             resetPlayer={resetPlayer}
+            // ✅ الأزرار
+            movie={movie}
+            toggleFavorite={toggleFavorite}
+            isInFavorites={isInFavorites}
+            toggleWatchLater={toggleWatchLater}
+            isInWatchLater={isInWatchLater}
+            toggleWatching={toggleWatching}
+            isWatching={isWatching}
           />
 
           <MovieInfoSection movie={movie} />
-
           <SuggestedMovies suggested={suggested} navigate={navigate} />
         </div>
       </div>

@@ -47,12 +47,15 @@ const Navbar = () => {
   ];
 
   // روابط التنقل
-  const navLinks = [
-    { name: 'الرئيسية', path: '/' },
-    { name: 'أفلام', path: '/moviespagde', hasDropdown: true, dropdownType: 'movies' },
-    { name: 'مسلسلات', path: '/tvshows', hasDropdown: true, dropdownType: 'tv' },
+const navLinks = [
+  { name: 'الرئيسية', path: '/' },
+  { name: 'أفلام', path: '/moviespagde', hasDropdown: true, dropdownType: 'movies' },
+  { name: 'مسلسلات', path: '/tvshows', hasDropdown: true, dropdownType: 'tv' },
 
-  ];
+  { name: 'مشاهدة لاحقاً', path: '/watch-later' },
+  { name: 'المفضلة', path: '/favorites' },
+  { name: 'أتابع الآن', path: '/currently-watching' },
+];
 
   const getMovieCategoryUrl = (sectionKey) => {
     const categoryUrls = {

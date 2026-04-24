@@ -21,22 +21,39 @@ const SearchPage = () => {
       if (!query) return;
       setLoading(true);
       try {
-        const response = await tmdbApi.get('/search/movie', {
-          params: { 
-            query: query, 
-            language: 'ar-SA',
-            page: page 
-          }
-        });
+const [arabicRes, englishRes] = await Promise.all([
+  tmdbApi.get('/search/movie', {
+    params: { query, language: 'ar-SA', page }
+  }),
+  tmdbApi.get('/search/movie', {
+    params: { query, language: 'en-US', page }
+  })
+]);
+
+const merged = [
+  ...arabicRes.data.results,
+  ...englishRes.data.results
+].filter(
+  (movie, index, self) =>
+    index === self.findIndex(m => m.id === movie.id)
+);
+
+const responseData = {
+  results: merged,
+  total_pages: Math.max(
+    arabicRes.data.total_pages,
+    englishRes.data.total_pages
+  )
+};
         
         if (page === 1) {
-          setMovies(response.data.results);
+         setMovies(responseData.results);
         } else {
           setMovies(prev => [...prev, ...response.data.results]);
         }
         
-        const hasMorePages = page < response.data.total_pages;
-        setHasMore(hasMorePages);
+const hasMorePages = page < responseData.total_pages;
+setTotalPages(responseData.total_pages);
         setTotalPages(response.data.total_pages);
       } catch (error) {
         console.error('Search error:', error);

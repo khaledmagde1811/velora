@@ -1,4 +1,4 @@
-// Pages/TvPage.jsx
+// Pages/TvShows/TvPage.jsx
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTvData } from './hooks/useTvData';
@@ -11,28 +11,38 @@ import { VideoPlayer } from './hooks/VideoPlayer';
 import { TvInfoSection } from './hooks/TvInfoSection';
 import { EpisodeSidebar } from './hooks/EpisodeSidebar';
 import { SimilarShows } from './hooks/SimilarShows';
+import { useUserLists } from '../../context/UserListsContext';
 
 const TvPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(true);
-  
-  // ✅ حذف useScroll نهائياً - كان سبب المشكلة الرئيسي
+
+  // ✅ جوه الـ component صح
+  const {
+    toggleFavorite,
+    isInFavorites,
+    toggleWatchLater,
+    isInWatchLater,
+    toggleWatching,
+    isWatching,
+  } = useUserLists();
+
   const { isFullscreen, toggleFullscreen, playerContainerRef } = useFullscreen();
-  const { 
-    tvShow, 
-    seasons, 
-    episodes, 
-    selectedSeason, 
-    selectedEpisode, 
-    loading, 
+  const {
+    tvShow,
+    seasons,
+    episodes,
+    selectedSeason,
+    selectedEpisode,
+    loading,
     error: tvDataError,
-    handleSeasonChange, 
-    handleEpisodeChange 
+    handleSeasonChange,
+    handleEpisodeChange,
   } = useTvData(id);
-  
+
   const { similarShows, similarShowsLoading } = useSimilarShows(tvShow?.id);
-  
+
   const {
     videoError,
     isVideoLoading,
@@ -50,13 +60,11 @@ const TvPage = () => {
     window.location.reload();
   }, []);
 
-  // ✅ التحكم في body overflow عند الـ fullscreen
   useEffect(() => {
     document.body.style.overflow = isFullscreen ? 'hidden' : '';
     document.body.style.margin = '0';
     document.body.style.padding = '0';
     document.documentElement.style.overflow = isFullscreen ? 'hidden' : '';
-
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
@@ -68,43 +76,27 @@ const TvPage = () => {
   if (!tvShow) return null;
 
   return (
-    // ✅ إزالة min-h-screen + overflow-x-hidden بس
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
-      
-      {/* ✅ overflow: hidden لمنع الـ absolute من تكبير الصفحة */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
 
-        {/* Hero Background - بدون parallax نهائياً */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage: tvShow.backdrop_path
-              ? `url(https://image.tmdb.org/t/p/original${tvShow.backdrop_path})`
-              : 'none',
-            backgroundColor: !tvShow.backdrop_path ? '#141414' : 'transparent',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            height: '100%',
-            zIndex: 0,
-            // ✅ مفيش transform أو translateY هنا
-          }}
-        />
+        {/* Hero Background */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: tvShow.backdrop_path
+            ? `url(https://image.tmdb.org/t/p/original${tvShow.backdrop_path})`
+            : 'none',
+          backgroundColor: !tvShow.backdrop_path ? '#141414' : 'transparent',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          height: '100%',
+          zIndex: 0,
+        }} />
 
         {/* Overlay Layers */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to top, #141414, rgba(20,20,20,0.8), transparent)'
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to right, #141414, rgba(20,20,20,0.3), transparent)'
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 1,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent, transparent)'
-        }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to top, #141414, rgba(20,20,20,0.8), transparent)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to right, #141414, rgba(20,20,20,0.3), transparent)' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), transparent, transparent)' }} />
 
         <div style={{ position: 'relative', zIndex: 10 }}>
           <VideoPlayer
@@ -127,6 +119,13 @@ const TvPage = () => {
             setShowSidebar={setShowSidebar}
             episodes={episodes}
             onEpisodeChange={handleEpisodeChange}
+            // ✅ أزرار القوائم
+            toggleFavorite={toggleFavorite}
+            isInFavorites={isInFavorites}
+            toggleWatchLater={toggleWatchLater}
+            isInWatchLater={isInWatchLater}
+            toggleWatching={toggleWatching}
+            isWatching={isWatching}
           />
 
           <TvInfoSection tvShow={tvShow} />
@@ -136,9 +135,7 @@ const TvPage = () => {
             <button
               onClick={() => setShowSidebar(!showSidebar)}
               className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
-            episodes={episodes}
-            onEpisodeChange={handleEpisodeChange}
-           >
+            >
               <span className="font-semibold text-base">
                 {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
               </span>
@@ -164,18 +161,16 @@ const TvPage = () => {
             onSeasonChange={handleSeasonChange}
             onEpisodeChange={handleEpisodeChange}
             navigate={navigate}
-          
-
           />
+
           <SimilarShows
-  similarShows={similarShows}
-  similarShowsLoading={similarShowsLoading}
-  navigate={navigate}
-/>
+            similarShows={similarShows}
+            similarShowsLoading={similarShowsLoading}
+            navigate={navigate}
+          />
         </div>
       </div>
 
-      {/* ✅ CSS مبسط - بس اللي محتاجه فعلاً */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f1f1f; border-radius: 10px; }

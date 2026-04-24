@@ -1,5 +1,54 @@
-// components/VideoPlayer.jsx
-import React from 'react';
+// Pages/TvShows/hooks/VideoPlayer.jsx
+import React, { useState } from 'react';
+
+// ─── زر موحد ─────────────────────────────────────────────────────────────────
+const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
+  <button
+    onClick={(e) => { e.stopPropagation(); onClick(); }}
+    title={label}
+    className="flex flex-col items-center gap-1 group transition-all duration-200 hover:scale-110 active:scale-95"
+  >
+    <div className={`
+      w-10 h-10 rounded-full flex items-center justify-center
+      bg-black/60 backdrop-blur-md border border-white/10
+      group-hover:border-white/30 transition-all duration-200
+      ${active ? activeColor : 'text-white'}
+    `}>
+      <span className="text-lg leading-none">{active ? activeIcon : inactiveIcon}</span>
+    </div>
+    <span className="text-[10px] text-white/70 group-hover:text-white transition hidden sm:block">{label}</span>
+  </button>
+);
+
+// ─── شريط أزرار القوائم ───────────────────────────────────────────────────────
+const UserListButtons = ({ tvShow, toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching }) => {
+  if (!tvShow) return null;
+  return (
+    <div className="flex items-end gap-3">
+      <ActionBtn
+        onClick={() => toggleFavorite(tvShow)}
+        active={isInFavorites(tvShow)}
+        activeIcon="❤️" inactiveIcon="🤍"
+        activeColor="text-red-500"
+        label="المفضلة"
+      />
+      <ActionBtn
+        onClick={() => toggleWatchLater(tvShow)}
+        active={isInWatchLater(tvShow)}
+        activeIcon="🔖" inactiveIcon="🕐"
+        activeColor="text-yellow-400"
+        label="لاحقاً"
+      />
+      <ActionBtn
+        onClick={() => toggleWatching(tvShow)}
+        active={isWatching(tvShow)}
+        activeIcon="▶️" inactiveIcon="⏸️"
+        activeColor="text-green-400"
+        label="أتابع الآن"
+      />
+    </div>
+  );
+};
 
 export const VideoPlayer = ({
   isFullscreen,
@@ -19,31 +68,38 @@ export const VideoPlayer = ({
   toggleFullscreen,
   resetPlayer,
   setShowSidebar,
-  // ✅ props جديدة للحلقة السابقة والتالية
   episodes,
   onEpisodeChange,
+  // ✅ props أزرار القوائم
+  toggleFavorite,
+  isInFavorites,
+  toggleWatchLater,
+  isInWatchLater,
+  toggleWatching,
+  isWatching,
 }) => {
 
-  // ✅ حساب الحلقة السابقة والتالية
-  const currentIndex = episodes?.findIndex(ep => ep.id === selectedEpisode?.id) ?? -1;
-  const prevEpisode = currentIndex > 0 ? episodes[currentIndex - 1] : null;
-  const nextEpisode = currentIndex !== -1 && currentIndex < (episodes?.length - 1) ? episodes[currentIndex + 1] : null;
+  const [showControls, setShowControls] = useState(false);
 
-  // ✅ شريط الكنترول - هيتعرض تحت الفيديو أو فوقه حسب الـ fullscreen
+  const currentIndex = episodes?.findIndex(ep => ep.id === selectedEpisode?.id) ?? -1;
+  const prevEpisode  = currentIndex > 0 ? episodes[currentIndex - 1] : null;
+  const nextEpisode  = currentIndex !== -1 && currentIndex < (episodes?.length - 1) ? episodes[currentIndex + 1] : null;
+
+  // ─── Controls Bar ───────────────────────────────────────────────────────────
   const ControlsBar = () => (
     <div className={`
       flex items-center justify-between gap-3 px-4 py-3
-      ${isFullscreen 
-        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent' 
+      ${isFullscreen
+        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
         : 'bg-[#1a1a1a] border-t border-white/10'
       }
     `}>
-      {/* ✅ مجموعة اليسار: fullscreen + server */}
+      {/* اليسار: fullscreen + server */}
       <div className="flex items-center gap-2">
         <button
           onClick={toggleFullscreen}
           className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
+          title={isFullscreen ? 'خروج من الشاشة الكاملة' : 'شاشة كاملة'}
         >
           {isFullscreen ? (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +130,7 @@ export const VideoPlayer = ({
         )}
       </div>
 
-      {/* ✅ الوسط: اسم الحلقة */}
+      {/* الوسط: اسم الحلقة */}
       <div className="flex-1 flex justify-center">
         <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5 max-w-[200px] md:max-w-xs truncate">
           <span className="text-sm text-white/90 font-medium truncate block text-center">
@@ -83,59 +139,65 @@ export const VideoPlayer = ({
         </div>
       </div>
 
-      {/* ✅ مجموعة اليمين: الحلقة السابقة والتالية */}
-      <div className="flex items-center gap-2">
-        {/* زر الحلقة السابقة */}
-        <button
-          onClick={() => prevEpisode && onEpisodeChange(prevEpisode)}
-          disabled={!prevEpisode}
-          className={`
-            flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium
-            transition-all backdrop-blur-md
-            ${prevEpisode 
-              ? 'bg-black/60 hover:bg-[#e50914]/80 hover:scale-105 cursor-pointer text-white' 
-              : 'bg-black/20 text-white/30 cursor-not-allowed'
-            }
-          `}
-          title={prevEpisode ? `الحلقة ${prevEpisode.episode_number}: ${prevEpisode.name}` : 'لا توجد حلقة سابقة'}
-        >
-          {/* سهم لليمين (RTL = سابقة) */}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="hidden sm:inline">السابقة</span>
-        </button>
+      {/* اليمين: حلقة سابقة / تالية + أزرار القوائم */}
+      <div className="flex items-center gap-3">
+        {/* السابقة والتالية */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => prevEpisode && onEpisodeChange(prevEpisode)}
+            disabled={!prevEpisode}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-all backdrop-blur-md
+              ${prevEpisode
+                ? 'bg-black/60 hover:bg-[#e50914]/80 hover:scale-105 cursor-pointer text-white'
+                : 'bg-black/20 text-white/30 cursor-not-allowed'
+              }`}
+            title={prevEpisode ? `الحلقة ${prevEpisode.episode_number}: ${prevEpisode.name}` : 'لا توجد حلقة سابقة'}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="hidden sm:inline">السابقة</span>
+          </button>
 
-        {/* زر الحلقة التالية */}
-        <button
-          onClick={() => nextEpisode && onEpisodeChange(nextEpisode)}
-          disabled={!nextEpisode}
-          className={`
-            flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium
-            transition-all backdrop-blur-md
-            ${nextEpisode 
-              ? 'bg-[#e50914]/80 hover:bg-[#e50914] hover:scale-105 cursor-pointer text-white' 
-              : 'bg-black/20 text-white/30 cursor-not-allowed'
-            }
-          `}
-          title={nextEpisode ? `الحلقة ${nextEpisode.episode_number}: ${nextEpisode.name}` : 'لا توجد حلقة تالية'}
-        >
-          <span className="hidden sm:inline">التالية</span>
-          {/* سهم لليسار (RTL = تالية) */}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+          <button
+            onClick={() => nextEpisode && onEpisodeChange(nextEpisode)}
+            disabled={!nextEpisode}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-all backdrop-blur-md
+              ${nextEpisode
+                ? 'bg-[#e50914]/80 hover:bg-[#e50914] hover:scale-105 cursor-pointer text-white'
+                : 'bg-black/20 text-white/30 cursor-not-allowed'
+              }`}
+            title={nextEpisode ? `الحلقة ${nextEpisode.episode_number}: ${nextEpisode.name}` : 'لا توجد حلقة تالية'}
+          >
+            <span className="hidden sm:inline">التالية</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* ✅ أزرار القوائم */}
+        <UserListButtons
+          tvShow={tvShow}
+          toggleFavorite={toggleFavorite}
+          isInFavorites={isInFavorites}
+          toggleWatchLater={toggleWatchLater}
+          isInWatchLater={isInWatchLater}
+          toggleWatching={toggleWatching}
+          isWatching={isWatching}
+        />
       </div>
     </div>
   );
 
-  // ✅ حالة Error أو مفيش حلقة مختارة
+  // ─── Error / No Episode ─────────────────────────────────────────────────────
   if (!selectedEpisode || !currentVideoUrl || videoError) {
     return (
       <>
         <div
           ref={playerContainerRef}
+          onMouseEnter={() => setShowControls(true)}
+          onMouseLeave={() => setShowControls(false)}
           className={`relative w-full bg-black transition-all duration-700 ease-out ${
             isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
           }`}
@@ -146,14 +208,11 @@ export const VideoPlayer = ({
                 <div className="w-28 h-28 rounded-full bg-[#e50914]/10 flex items-center justify-center animate-bounce">
                   <span className="text-6xl">⚠️</span>
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#e50914] rounded-full flex items-center justify-center animate-pulse">
-                  <span className="text-white text-xs font-bold">!</span>
-                </div>
               </div>
               <p className="text-[#e50914] text-2xl md:text-3xl font-bold">عذراً، لا يمكن تشغيل هذا المسلسل حالياً</p>
               <p className="text-gray-400 text-base max-w-md">جميع السيرفرات لا تعمل. يرجى المحاولة مرة أخرى لاحقاً</p>
               <div className="flex gap-4 mt-6">
-                <button onClick={resetPlayer} className="bg-[#e50914] hover:bg-[#b20710] px-8 py-3.5 rounded-xl font-semibold transition-all transform hover:scale-105 hover:shadow-lg">
+                <button onClick={resetPlayer} className="bg-[#e50914] hover:bg-[#b20710] px-8 py-3.5 rounded-xl font-semibold transition-all transform hover:scale-105">
                   إعادة المحاولة
                 </button>
                 <button onClick={() => setShowSidebar(true)} className="bg-gray-700 hover:bg-gray-600 px-8 py-3.5 rounded-xl font-semibold transition-all transform hover:scale-105">
@@ -167,7 +226,6 @@ export const VideoPlayer = ({
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#e50914]/30 to-[#e50914]/5 flex items-center justify-center animate-float">
                   <span className="text-6xl">🎬</span>
                 </div>
-                <div className="absolute -top-3 -right-3 w-10 h-10 bg-gradient-to-r from-[#e50914] to-[#b20710] rounded-full flex items-center justify-center text-white text-sm font-bold animate-pulse shadow-lg">!</div>
               </div>
               <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-gray-300 to-gray-400 bg-clip-text text-transparent">اختر حلقة للمشاهدة</h3>
               <p className="text-gray-400 text-base max-w-md">اختر موسماً وحلقة من القائمة أدناه للبدء في مشاهدة {tvShow?.name}</p>
@@ -176,19 +234,27 @@ export const VideoPlayer = ({
               </button>
             </div>
           )}
+
+          {/* fullscreen controls مع hover */}
+          {isFullscreen && (
+            <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+              <ControlsBar />
+            </div>
+          )}
         </div>
 
-        {/* ✅ شريط الكنترول تحت الفيديو حتى في حالة Error */}
         {!isFullscreen && <ControlsBar />}
       </>
     );
   }
 
+  // ─── Player ─────────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Player Container */}
       <div
         ref={playerContainerRef}
+        onMouseEnter={() => setShowControls(true)}
+        onMouseLeave={() => setShowControls(false)}
         className={`relative w-full bg-black transition-all duration-700 ease-out ${
           isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
         }`}
@@ -219,11 +285,15 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* ✅ الكنترول فوق الفيديو فقط في fullscreen */}
-        {isFullscreen && <ControlsBar />}
+        {/* ✅ fullscreen controls — تظهر عند hover بس */}
+        {isFullscreen && (
+          <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+            <ControlsBar />
+          </div>
+        )}
       </div>
 
-      {/* ✅ الكنترول تحت الفيديو في الوضع العادي */}
+      {/* ✅ عادي — دايماً ظاهر تحت الفيديو */}
       {!isFullscreen && <ControlsBar />}
     </>
   );

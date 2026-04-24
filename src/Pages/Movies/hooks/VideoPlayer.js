@@ -1,5 +1,70 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React from 'react';
+import React, { useState } from 'react';
+
+// ─── زر صغير موحد الشكل ──────────────────────────────────────────────────────
+const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor = 'text-red-500', label }) => (
+  <button
+    onClick={(e) => { e.stopPropagation(); onClick(); }}
+    title={label}
+    className={`
+      flex flex-col items-center gap-1 group transition-all duration-200
+      hover:scale-110 active:scale-95
+    `}
+  >
+    <div className={`
+      w-10 h-10 rounded-full flex items-center justify-center
+      bg-black/60 backdrop-blur-md border border-white/10
+      group-hover:border-white/30 transition-all duration-200
+      ${active ? activeColor : 'text-white'}
+    `}>
+      <span className="text-lg leading-none">
+        {active ? activeIcon : inactiveIcon}
+      </span>
+    </div>
+    <span className="text-[10px] text-white/70 group-hover:text-white transition hidden sm:block">
+      {label}
+    </span>
+  </button>
+);
+
+// ─── شريط الأزرار ─────────────────────────────────────────────────────────────
+const UserListButtons = ({ movie, toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching }) => {
+  if (!movie) return null;
+
+  return (
+    <div className="flex items-end gap-3">
+      {/* ❤️ المفضلة */}
+      <ActionBtn
+        onClick={() => toggleFavorite(movie)}
+        active={isInFavorites(movie)}
+        activeIcon="❤️"
+        inactiveIcon="🤍"
+        activeColor="text-red-500"
+        label="المفضلة"
+      />
+
+      {/* ⏰ مشاهدة لاحقاً */}
+      <ActionBtn
+        onClick={() => toggleWatchLater(movie)}
+        active={isInWatchLater(movie)}
+        activeIcon="🔖"
+        inactiveIcon="🕐"
+        activeColor="text-yellow-400"
+        label="لاحقاً"
+      />
+
+      {/* ▶️ أتابع الآن */}
+      <ActionBtn
+        onClick={() => toggleWatching(movie)}
+        active={isWatching(movie)}
+        activeIcon="▶️"
+        inactiveIcon="⏸️"
+        activeColor="text-green-400"
+        label="أتابع الآن"
+      />
+    </div>
+  );
+};
 
 export const VideoPlayer = ({
   isFullscreen,
@@ -16,9 +81,19 @@ export const VideoPlayer = ({
   switchServer,
   toggleFullscreen,
   resetPlayer,
+  // ✅ props الأزرار
+  toggleFavorite,
+  isInFavorites,
+  toggleWatchLater,
+  isInWatchLater,
+  toggleWatching,
+  isWatching,
 }) => {
 
-  // ✅ شريط الكنترول - تحت الفيديو في العادي، فوقه في fullscreen
+  // ─── Hover state للـ fullscreen ───────────────────────────────────────────
+  const [showControls, setShowControls] = useState(false);
+
+  // ─── Controls Bar ─────────────────────────────────────────────────────────
   const ControlsBar = () => (
     <div className={`
       flex items-center justify-between gap-3 px-4 py-3
@@ -72,8 +147,18 @@ export const VideoPlayer = ({
         </div>
       </div>
 
-      {/* اليمين: placeholder لتوازن التصميم */}
-      <div className="w-[80px]" />
+      {/* اليمين: أزرار القوائم */}
+      <div className="w-auto flex justify-end">
+        <UserListButtons
+          movie={movie}
+          toggleFavorite={toggleFavorite}
+          isInFavorites={isInFavorites}
+          toggleWatchLater={toggleWatchLater}
+          isInWatchLater={isInWatchLater}
+          toggleWatching={toggleWatching}
+          isWatching={isWatching}
+        />
+      </div>
     </div>
   );
 
@@ -82,6 +167,8 @@ export const VideoPlayer = ({
       {/* Player Container */}
       <div
         ref={playerContainerRef}
+        onMouseEnter={() => setShowControls(true)}
+        onMouseLeave={() => setShowControls(false)}
         className={`
           relative w-full bg-black transition-all duration-700 ease-out
           ${isFullscreen
@@ -155,7 +242,7 @@ export const VideoPlayer = ({
             <div className="relative">
               <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-xl animate-ping" />
               <div className="relative w-20 h-20 rounded-full bg-[#e50914]/20 flex items-center justify-center animate-pulse">
-                <span className="text-4xl animate-float">🎬</span>
+                <span className="text-4xl">🎬</span>
               </div>
             </div>
             <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
@@ -165,11 +252,15 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* ✅ الكنترول فوق الفيديو فقط في fullscreen */}
-        {isFullscreen && <ControlsBar />}
+        {/* ✅ الكنترول فوق الفيديو في fullscreen — يظهر بس عند hover */}
+        {isFullscreen && (
+          <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+            <ControlsBar />
+          </div>
+        )}
       </div>
 
-      {/* ✅ الكنترول تحت الفيديو في الوضع العادي */}
+      {/* ✅ الكنترول تحت الفيديو في الوضع العادي — دايماً ظاهر */}
       {!isFullscreen && <ControlsBar />}
     </>
   );
