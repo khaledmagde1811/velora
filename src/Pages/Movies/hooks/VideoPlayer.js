@@ -1,5 +1,5 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor = 'text-red-500', label }) => (
   <button
@@ -55,7 +55,12 @@ export const VideoPlayer = ({
 
   const [showControls, setShowControls] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  let hideTimeout = null;
+  
+  // Refs لإدارة الوقت والتفاعلات
+  const hideTimeoutRef = useRef(null);
+  const isHoveringRef = useRef(false);
+  const isInteractingWithControlsRef = useRef(false);
+  const touchCountRef = useRef(0);
 
   // كشف إذا كان الجهاز محمول
   useEffect(() => {
@@ -67,113 +72,216 @@ export const VideoPlayer = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // تنظيف الـ timeout عند إلغاء تحميل المكون
+  // وظيفة موحدة لإخفاء الـ controls
+  const hideControls = useCallback(() => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    setShowControls(false);
+  }, []);
+
+  // وظيفة موحدة لإظهار الـ controls وإعادة ضبط المؤقت
+  const showControlsWithTimer = useCallback((customDelay = null) => {
+    // تنظيف أي timeout موجود
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    
+    // إظهار الـ controls
+    setShowControls(true);
+    
+    // تحديد مدة الإخفاء التلقائي
+    let delay = customDelay;
+    
+    if (delay === null) {
+      if (isMobile && isFullscreen) {
+        // موبايل في fullscreen: auto-hide بعد 3 ثواني بدون لمس
+        delay = 3000;
+      } else if (!isMobile && isFullscreen) {
+        // Desktop في fullscreen: auto-hide بعد 2.5-3 ثواني
+        delay = 2800;
+      } else if (!isMobile && isHoveringRef.current) {
+        // Desktop hover: auto-hide بعد 2.5-3 ثواني من عدم الحركة
+        delay = 2800;
+      } else {
+        delay = null;
+      }
+    }
+    
+    // ضبط المؤقت للإخفاء التلقائي
+    if (delay !== null && delay > 0) {
+      hideTimeoutRef.current = setTimeout(() => {
+        if (!isInteractingWithControlsRef.current) {
+          setShowControls(false);
+        }
+        hideTimeoutRef.current = null;
+      }, delay);
+    }
+  }, [isMobile, isFullscreen]);
+
+  // Desktop: إظهار controls عند hover
+  const handleMouseEnter = useCallback(() => {
+    if (!isMobile) {
+      isHoveringRef.current = true;
+      showControlsWithTimer();
+    }
+  }, [isMobile, showControlsWithTimer]);
+
+  // Desktop: إعادة ضبط المؤقت عند أي حركة mouse
+  const handleMouseMove = useCallback(() => {
+    if (!isMobile && showControls) {
+      showControlsWithTimer();
+    }
+  }, [isMobile, showControls, showControlsWithTimer]);
+
+  // إخفاء controls فور خروج mouse مع fade
+  const handleMouseLeave = useCallback(() => {
+    if (!isMobile) {
+      isHoveringRef.current = false;
+      hideControls();
+    }
+  }, [isMobile, hideControls]);
+
+  // Mobile: إدارة الـ taps
+  const handleTap = useCallback(() => {
+    if (isMobile && !isInteractingWithControlsRef.current) {
+      touchCountRef.current += 1;
+      
+      if (touchCountRef.current === 1) {
+        // أول tap: إظهار controls
+        showControlsWithTimer(isFullscreen ? 3000 : null);
+        
+        // إعادة تعيين العداد بعد فترة قصيرة
+        setTimeout(() => {
+          touchCountRef.current = 0;
+        }, 300);
+      } else if (touchCountRef.current === 2) {
+        // tap ثاني: إخفاء controls
+        hideControls();
+        touchCountRef.current = 0;
+      }
+    }
+  }, [isMobile, isFullscreen, showControlsWithTimer, hideControls]);
+
+  // معالج النقر الموحد
+  const handleClick = useCallback((e) => {
+    // التأكد أن العنصر الذي تم النقر عليه ليس داخل الـ controls
+    const isControlElement = e.target.closest('.controls-bar, button, [role="button"]');
+    
+    if (isMobile && !isControlElement && !videoError && currentVideoUrl) {
+      handleTap();
+    }
+  }, [isMobile, handleTap, videoError, currentVideoUrl]);
+
+  // منع إخفاء الـ controls عند التفاعل معها
+  const handleControlsMouseEnter = useCallback(() => {
+    isInteractingWithControlsRef.current = true;
+    
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    
+    setShowControls(true);
+  }, []);
+
+  const handleControlsMouseLeave = useCallback(() => {
+    isInteractingWithControlsRef.current = false;
+    
+    // إعادة ضبط المؤقت للإخفاء التلقائي
+    if (!isMobile && isHoveringRef.current) {
+      showControlsWithTimer();
+    } else if (isMobile && isFullscreen && !videoError) {
+      showControlsWithTimer(3000);
+    }
+  }, [isMobile, isFullscreen, showControlsWithTimer, videoError]);
+
+  // تنظيف الـ timeout عند إزالة المكون
   useEffect(() => {
     return () => {
-      if (hideTimeout) clearTimeout(hideTimeout);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
     };
   }, []);
 
   const ControlsBar = () => (
-    <div className={`
-      flex items-center justify-between gap-3 px-4 py-3
-      ${isFullscreen
-        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
-        : 'bg-[#1a1a1a] border-t border-white/10'
-      }
-    `}>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-        >
-          {isFullscreen ? (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-          )}
-        </button>
-
-        {workingUrls.length > 1 && (
+    <div 
+      className="controls-bar"
+      onMouseEnter={handleControlsMouseEnter}
+      onMouseLeave={handleControlsMouseLeave}
+    >
+      <div className={`
+        flex items-center justify-between gap-3 px-4 py-3
+        ${isFullscreen
+          ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
+          : 'bg-[#1a1a1a] border-t border-white/10'
+        }
+      `}>
+        <div className="flex items-center gap-2">
           <button
-            onClick={switchServer}
+            onClick={toggleFullscreen}
             className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-            title="تغيير السيرفر"
+            title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
           >
-            <div className="flex items-center gap-1.5">
-              <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            {isFullscreen ? (
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-              <span className="text-xs font-medium hidden sm:inline">
-                {currentServerIndex + 1}/{workingUrls.length}
-              </span>
-            </div>
+            ) : (
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            )}
           </button>
-        )}
-      </div>
 
-      <div className="flex-1 flex justify-center">
-        <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5 max-w-[200px] md:max-w-md">
-          <span className="text-sm text-white/90 font-medium truncate block text-center">{movie?.title}</span>
+          {workingUrls.length > 1 && (
+            <button
+              onClick={switchServer}
+              className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
+              title="تغيير السيرفر"
+            >
+              <div className="flex items-center gap-1.5">
+                <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="text-xs font-medium hidden sm:inline">
+                  {currentServerIndex + 1}/{workingUrls.length}
+                </span>
+              </div>
+            </button>
+          )}
         </div>
-      </div>
 
-      <div className="w-auto flex justify-end">
-        <UserListButtons
-          movie={movie}
-          toggleFavorite={toggleFavorite}
-          isInFavorites={isInFavorites}
-          toggleWatchLater={toggleWatchLater}
-          isInWatchLater={isInWatchLater}
-          toggleWatching={toggleWatching}
-          isWatching={isWatching}
-        />
+        <div className="flex-1 flex justify-center">
+          <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5 max-w-[200px] md:max-w-md">
+            <span className="text-sm text-white/90 font-medium truncate block text-center">{movie?.title}</span>
+          </div>
+        </div>
+
+        <div className="w-auto flex justify-end">
+          <UserListButtons
+            movie={movie}
+            toggleFavorite={toggleFavorite}
+            isInFavorites={isInFavorites}
+            toggleWatchLater={toggleWatchLater}
+            isInWatchLater={isInWatchLater}
+            toggleWatching={toggleWatching}
+            isWatching={isWatching}
+          />
+        </div>
       </div>
     </div>
   );
-
-  // دالة للتعامل مع إظهار وإخفاء الأزرار على المحمول
-  const handleMouseEnter = () => {
-    if (hideTimeout) clearTimeout(hideTimeout);
-    setShowControls(true);
-  };
-
-  const handleMouseLeave = () => {
-    if (isMobile && isFullscreen) {
-      // على المحمول في وضع ملء الشاشة: نخفي الأزرار بعد 3 ثواني
-      hideTimeout = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    } else {
-      setShowControls(false);
-    }
-  };
-
-  const handleClick = () => {
-    // على المحمول وفي وضع ملء الشاشة، نضغط لإظهار/إخفاء الأزرار
-    if (isMobile && isFullscreen) {
-      if (hideTimeout) clearTimeout(hideTimeout);
-      setShowControls(!showControls);
-      
-      // إذا تم إظهار الأزرار، نخفيها تلقائياً بعد 3 ثواني
-      if (!showControls) {
-        hideTimeout = setTimeout(() => {
-          setShowControls(false);
-        }, 3000);
-      }
-    }
-  };
 
   return (
     <>
       <div
         ref={playerContainerRef}
         onMouseEnter={handleMouseEnter}
+        onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
         className={`
@@ -244,11 +352,9 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* Controls - تظهر بشكل مختلف على المحمول */}
+        {/* Controls مع transition سلس */}
         <div className={`transition-opacity duration-300 ${
-          (isMobile && isFullscreen && (videoError || !currentVideoUrl)) 
-            ? 'opacity-100'  // في حالة الخطأ على المحمول، تظهر الأزرار دائماً
-            : (showControls ? 'opacity-100' : 'opacity-0')
+          showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
         } ${
           isFullscreen
             ? 'absolute top-0 left-0 right-0 z-20'
@@ -258,7 +364,7 @@ export const VideoPlayer = ({
         </div>
 
         {/* إضافة مؤشر للإشارة إلى إمكانية النقر على المحمول في وضع ملء الشاشة */}
-        {isMobile && isFullscreen && !videoError && currentVideoUrl && !showControls && (
+        {isMobile && isFullscreen && !videoError && currentVideoUrl && !showControls && !isVideoLoading && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
             <div className="bg-black/50 backdrop-blur-md rounded-full p-2 animate-pulse">
               <svg className="w-8 h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
