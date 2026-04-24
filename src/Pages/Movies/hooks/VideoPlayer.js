@@ -165,100 +165,102 @@ export const VideoPlayer = ({
   return (
     <>
       {/* Player Container */}
-      <div
-        ref={playerContainerRef}
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
-        className={`
-          relative w-full bg-black transition-all duration-700 ease-out
-          ${isFullscreen
-            ? 'fixed inset-0 z-50 h-screen'
-            : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-          }
-        `}
-      >
-        {currentVideoUrl && !videoError ? (
-          <div className="relative w-full h-full">
-            <iframe
-              key={iframeKey}
-              src={currentVideoUrl.url}
-              title={movie?.title}
-              frameBorder="0"
-              allowFullScreen
-              className="w-full h-full border-0"
-              onLoad={handleIframeLoad}
-              onError={handleIframeError}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            />
+<div
+  ref={playerContainerRef}
+  onMouseEnter={() => setShowControls(true)}
+  onMouseLeave={() => setShowControls(false)}
+  className={`
+    relative w-full bg-black transition-all duration-700 ease-out
+    ${isFullscreen
+      ? 'fixed inset-0 z-50 h-screen'
+      : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
+    }
+  `}
+>
+  {currentVideoUrl && !videoError ? (
+    <div className="relative w-full h-full">
+      <iframe
+        key={iframeKey}
+        src={currentVideoUrl.url}
+        title={movie?.title}
+        frameBorder="0"
+        allowFullScreen
+        className="w-full h-full border-0"
+        onLoad={handleIframeLoad}
+        onError={handleIframeError}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+      />
 
-            {/* Loading Overlay */}
-            {isVideoLoading && (
-              <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10 transition-all duration-500">
-                <div className="text-center">
-                  <div className="relative w-16 h-16 mx-auto mb-4">
-                    <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
-                    <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
-                    <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#e50914]/20 to-transparent animate-pulse"></div>
-                  </div>
-                  <p className="text-white text-sm md:text-base font-medium mb-2 tracking-wide">
-                    جاري تحميل الفيلم...
-                  </p>
-                  <p className="text-gray-400 text-xs md:text-sm">
-                    السيرفر {currentServerIndex + 1} من {workingUrls.length}
-                  </p>
-                  <div className="w-48 md:w-64 h-1 bg-gray-800 rounded-full mt-4 mx-auto overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#e50914] to-[#ff4d4d] rounded-full animate-pulse transition-all duration-300"
-                      style={{ width: `${((currentServerIndex + 1) / workingUrls.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-        ) : videoError ? (
-          <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-4 p-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-24 h-24 rounded-full bg-[#e50914]/10 flex items-center justify-center">
-                <span className="text-6xl animate-bounce">⚠️</span>
-              </div>
+      {/* Loading Overlay */}
+      {isVideoLoading && (
+        <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10 transition-all duration-500">
+          <div className="text-center">
+            <div className="relative w-16 h-16 mx-auto mb-4">
+              <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#e50914]/20 to-transparent animate-pulse"></div>
             </div>
-            <p className="text-[#e50914] text-lg md:text-xl font-semibold">
-              عذراً، لا يمكن تشغيل هذا الفيلم حالياً
+            <p className="text-white text-sm md:text-base font-medium mb-2 tracking-wide">
+              جاري تحميل الفيلم...
             </p>
-            <p className="text-gray-400 text-sm">جميع السيرفرات لا تعمل</p>
-            <button
-              onClick={resetPlayer}
-              className="bg-gradient-to-r from-[#e50914] to-[#ff4d4d] hover:from-[#b20710] hover:to-[#e50914] px-6 py-2.5 rounded-md transition-all transform hover:scale-105 shadow-lg"
-            >
-              إعادة المحاولة
-            </button>
-          </div>
-
-        ) : (
-          <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-3 p-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-xl animate-ping" />
-              <div className="relative w-20 h-20 rounded-full bg-[#e50914]/20 flex items-center justify-center animate-pulse">
-                <span className="text-4xl">🎬</span>
-              </div>
+            <p className="text-gray-400 text-xs md:text-sm">
+              السيرفر {currentServerIndex + 1} من {workingUrls.length}
+            </p>
+            <div className="w-48 md:w-64 h-1 bg-gray-800 rounded-full mt-4 mx-auto overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#e50914] to-[#ff4d4d] rounded-full animate-pulse transition-all duration-300"
+                style={{ width: `${((currentServerIndex + 1) / workingUrls.length) * 100}%` }}
+              />
             </div>
-            <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-              جاري تجهيز المشغل...
-            </p>
-            <p className="text-gray-400 text-sm">سيبدأ الفيديو قريباً</p>
           </div>
-        )}
+        </div>
+      )}
+    </div>
 
-        {/* ✅ الكنترول فوق الفيديو في fullscreen — يظهر بس عند hover */}
-        {isFullscreen && (
-          <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-            <ControlsBar />
-          </div>
-        )}
+  ) : videoError ? (
+    <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-4 p-4">
+      <div className="relative">
+        <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-2xl animate-pulse" />
+        <div className="relative w-24 h-24 rounded-full bg-[#e50914]/10 flex items-center justify-center">
+          <span className="text-6xl animate-bounce">⚠️</span>
+        </div>
       </div>
+      <p className="text-[#e50914] text-lg md:text-xl font-semibold">
+        عذراً، لا يمكن تشغيل هذا الفيلم حالياً
+      </p>
+      <p className="text-gray-400 text-sm">جميع السيرفرات لا تعمل</p>
+      <button
+        onClick={resetPlayer}
+        className="bg-gradient-to-r from-[#e50914] to-[#ff4d4d] hover:from-[#b20710] hover:to-[#e50914] px-6 py-2.5 rounded-md transition-all transform hover:scale-105 shadow-lg"
+      >
+        إعادة المحاولة
+      </button>
+    </div>
+
+  ) : (
+    <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-3 p-4">
+      <div className="relative">
+        <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-xl animate-ping" />
+        <div className="relative w-20 h-20 rounded-full bg-[#e50914]/20 flex items-center justify-center animate-pulse">
+          <span className="text-4xl">🎬</span>
+        </div>
+      </div>
+      <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+        جاري تجهيز المشغل...
+      </p>
+      <p className="text-gray-400 text-sm">سيبدأ الفيديو قريباً</p>
+    </div>
+  )}
+
+  {/* controls تظهر عند hover سواء fullscreen أو لأ */}
+  <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} ${
+    isFullscreen
+      ? 'absolute top-0 left-0 right-0 z-20'
+      : 'absolute bottom-0 left-0 right-0 z-20'
+  }`}>
+    <ControlsBar />
+  </div>
+</div>
 
       {/* ✅ الكنترول تحت الفيديو في الوضع العادي — دايماً ظاهر */}
       {!isFullscreen && <ControlsBar />}

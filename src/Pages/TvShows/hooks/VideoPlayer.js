@@ -251,47 +251,49 @@ export const VideoPlayer = ({
   // ─── Player ─────────────────────────────────────────────────────────────────
   return (
     <>
-      <div
-        ref={playerContainerRef}
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
-        className={`relative w-full bg-black transition-all duration-700 ease-out ${
-          isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-        }`}
-      >
-        <iframe
-          key={iframeKey}
-          src={currentVideoUrl}
-          title={`${tvShow?.name} - S${selectedSeason?.season_number}E${selectedEpisode.episode_number}`}
-          frameBorder="0"
-          allowFullScreen
-          className="w-full h-full border-0"
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        />
+<div
+  ref={playerContainerRef}
+  onMouseEnter={() => setShowControls(true)}
+  onMouseLeave={() => setShowControls(false)}
+  className={`relative w-full bg-black transition-all duration-700 ease-out ${
+    isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
+  }`}
+>
+  <iframe
+    key={iframeKey}
+    src={currentVideoUrl}
+    title={`${tvShow?.name} - S${selectedSeason?.season_number}E${selectedEpisode.episode_number}`}
+    frameBorder="0"
+    allowFullScreen
+    className="w-full h-full border-0"
+    onLoad={handleIframeLoad}
+    onError={handleIframeError}
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+  />
 
-        {/* Loading Overlay */}
-        {isVideoLoading && (
-          <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10">
-            <div className="text-center">
-              <div className="relative w-16 h-16 mx-auto mb-4">
-                <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
-              </div>
-              <p className="text-white text-sm font-medium mb-1">جاري تحميل الحلقة...</p>
-              <p className="text-gray-400 text-xs">السيرفر {currentServerIndex + 1} من {workingUrls.length}</p>
-            </div>
-          </div>
-        )}
-
-        {/* ✅ fullscreen controls — تظهر عند hover بس */}
-        {isFullscreen && (
-          <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-            <ControlsBar />
-          </div>
-        )}
+  {/* Loading Overlay */}
+  {isVideoLoading && (
+    <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10">
+      <div className="text-center">
+        <div className="relative w-16 h-16 mx-auto mb-4">
+          <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
+        </div>
+        <p className="text-white text-sm font-medium mb-1">جاري تحميل الحلقة...</p>
+        <p className="text-gray-400 text-xs">السيرفر {currentServerIndex + 1} من {workingUrls.length}</p>
       </div>
+    </div>
+  )}
+
+  {/* controls تظهر عند hover سواء fullscreen أو لأ */}
+  <div className={`transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} ${
+    isFullscreen
+      ? 'absolute top-0 left-0 right-0 z-20'
+      : 'absolute bottom-0 left-0 right-0 z-20'
+  }`}>
+    <ControlsBar />
+  </div>
+</div>
 
       {/* ✅ عادي — دايماً ظاهر تحت الفيديو */}
       {!isFullscreen && <ControlsBar />}
