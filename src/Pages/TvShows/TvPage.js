@@ -126,28 +126,43 @@ const TvPage = () => {
   resetPlayer={resetPlayer}
   setShowSidebar={setShowSidebar}
 />
-
-          <TvInfoSection tvShow={tvShow} />
+   
+           <TvInfoSection tvShow={tvShow} />
 
           {/* Mobile Toggle Button */}
-          <div className="lg:hidden px-4 mb-4">
-            <button
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
-            episodes={episodes}
-            onEpisodeChange={handleEpisodeChange}
-           >
-              <span className="font-semibold text-base">
-                {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
-              </span>
-              <svg
-                className={`w-5 h-5 transition-transform duration-300 ${showSidebar ? 'rotate-180' : ''}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
+<div className="lg:hidden px-4 mb-4">
+  <button
+    onClick={() => setShowSidebar(!showSidebar)}
+    className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
+  >
+    <span className="font-semibold text-base">
+      {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
+    </span>
+    <svg
+      className={`w-5 h-5 transition-transform duration-300 ${showSidebar ? 'rotate-180' : ''}`}
+      fill="none" 
+      stroke="currentColor" 
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+</div>
+
+<EpisodeSidebar
+  showSidebar={showSidebar}
+  setShowSidebar={setShowSidebar}
+  seasons={seasons}
+  selectedSeason={selectedSeason}
+  episodes={episodes}
+  selectedEpisode={selectedEpisode}
+  tvShow={tvShow}
+  similarShows={similarShows}
+  similarShowsLoading={similarShowsLoading}
+  onSeasonChange={handleSeasonChange}
+  onEpisodeChange={handleEpisodeChange}
+  navigate={navigate}
+/>
 
           <EpisodeSidebar
   showSidebar={showSidebar}
