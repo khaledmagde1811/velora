@@ -1,4 +1,4 @@
-// Pages/TvPage.jsx
+// Pages/TvPage.jsx - الكود الصحيح بعد التعديل
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTvData } from './hooks/useTvData';
@@ -17,7 +17,6 @@ const TvPage = () => {
   const navigate = useNavigate();
   const [showSidebar, setShowSidebar] = useState(true);
   
-  // ✅ حذف useScroll نهائياً - كان سبب المشكلة الرئيسي
   const { isFullscreen, toggleFullscreen, playerContainerRef } = useFullscreen();
   const { 
     tvShow, 
@@ -50,7 +49,6 @@ const TvPage = () => {
     window.location.reload();
   }, []);
 
-  // ✅ التحكم في body overflow عند الـ fullscreen
   useEffect(() => {
     document.body.style.overflow = isFullscreen ? 'hidden' : '';
     document.body.style.margin = '0';
@@ -68,13 +66,11 @@ const TvPage = () => {
   if (!tvShow) return null;
 
   return (
-    // ✅ إزالة min-h-screen + overflow-x-hidden بس
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
       
-      {/* ✅ overflow: hidden لمنع الـ absolute من تكبير الصفحة */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
 
-        {/* Hero Background - بدون parallax نهائياً */}
+        {/* Hero Background */}
         <div
           style={{
             position: 'absolute',
@@ -88,7 +84,6 @@ const TvPage = () => {
             backgroundRepeat: 'no-repeat',
             height: '100%',
             zIndex: 0,
-            // ✅ مفيش transform أو translateY هنا
           }}
         />
 
@@ -107,86 +102,71 @@ const TvPage = () => {
         }} />
 
         <div style={{ position: 'relative', zIndex: 10 }}>
-         <VideoPlayer
-  isFullscreen={isFullscreen}
-  playerContainerRef={playerContainerRef}
-  selectedEpisode={selectedEpisode}
-  selectedSeason={selectedSeason}
-  tvShow={tvShow}
-  currentVideoUrl={currentVideoUrl}
-  videoError={videoError}
-  isVideoLoading={isVideoLoading}
-  iframeKey={iframeKey}
-  workingUrls={workingUrls}
-  currentServerIndex={currentServerIndex}
-  handleIframeLoad={handleIframeLoad}
-  handleIframeError={handleIframeError}
-  switchServer={switchServer}
-  toggleFullscreen={toggleFullscreen}
-  resetPlayer={resetPlayer}
-  setShowSidebar={setShowSidebar}
-/>
+          <VideoPlayer
+            isFullscreen={isFullscreen}
+            playerContainerRef={playerContainerRef}
+            selectedEpisode={selectedEpisode}
+            selectedSeason={selectedSeason}
+            tvShow={tvShow}
+            currentVideoUrl={currentVideoUrl}
+            videoError={videoError}
+            isVideoLoading={isVideoLoading}
+            iframeKey={iframeKey}
+            workingUrls={workingUrls}
+            currentServerIndex={currentServerIndex}
+            handleIframeLoad={handleIframeLoad}
+            handleIframeError={handleIframeError}
+            switchServer={switchServer}
+            toggleFullscreen={toggleFullscreen}
+            resetPlayer={resetPlayer}
+            setShowSidebar={setShowSidebar}
+          />
    
-           <TvInfoSection tvShow={tvShow} />
+          <TvInfoSection tvShow={tvShow} />
 
           {/* Mobile Toggle Button */}
-<div className="lg:hidden px-4 mb-4">
-  <button
-    onClick={() => setShowSidebar(!showSidebar)}
-    className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
-  >
-    <span className="font-semibold text-base">
-      {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
-    </span>
-    <svg
-      className={`w-5 h-5 transition-transform duration-300 ${showSidebar ? 'rotate-180' : ''}`}
-      fill="none" 
-      stroke="currentColor" 
-      viewBox="0 0 24 24"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-  </button>
-</div>
-
-<EpisodeSidebar
-  showSidebar={showSidebar}
-  setShowSidebar={setShowSidebar}
-  seasons={seasons}
-  selectedSeason={selectedSeason}
-  episodes={episodes}
-  selectedEpisode={selectedEpisode}
-  tvShow={tvShow}
-  similarShows={similarShows}
-  similarShowsLoading={similarShowsLoading}
-  onSeasonChange={handleSeasonChange}
-  onEpisodeChange={handleEpisodeChange}
-  navigate={navigate}
-/>
+          <div className="lg:hidden px-4 mb-4">
+            <button
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="flex items-center justify-between w-full px-6 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-gray-800/70 transition-all duration-300"
+            >
+              <span className="font-semibold text-base">
+                {showSidebar ? 'إخفاء الحلقات' : 'عرض الحلقات'}
+              </span>
+              <svg
+                className={`w-5 h-5 transition-transform duration-300 ${showSidebar ? 'rotate-180' : ''}`}
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
 
           <EpisodeSidebar
-  showSidebar={showSidebar}
-  setShowSidebar={setShowSidebar}
-  seasons={seasons}
-  selectedSeason={selectedSeason}
-  episodes={episodes}
-  selectedEpisode={selectedEpisode}
-  tvShow={tvShow}
-  similarShows={similarShows}
-  similarShowsLoading={similarShowsLoading}
-  onSeasonChange={handleSeasonChange}
-  onEpisodeChange={handleEpisodeChange}
-  navigate={navigate}
-/>
+            showSidebar={showSidebar}
+            setShowSidebar={setShowSidebar}
+            seasons={seasons}
+            selectedSeason={selectedSeason}
+            episodes={episodes}
+            selectedEpisode={selectedEpisode}
+            tvShow={tvShow}
+            similarShows={similarShows}
+            similarShowsLoading={similarShowsLoading}
+            onSeasonChange={handleSeasonChange}
+            onEpisodeChange={handleEpisodeChange}
+            navigate={navigate}
+          />
+
           <SimilarShows
-  similarShows={similarShows}
-  similarShowsLoading={similarShowsLoading}
-  navigate={navigate}
-/>
+            similarShows={similarShows}
+            similarShowsLoading={similarShowsLoading}
+            navigate={navigate}
+          />
         </div>
       </div>
 
-      {/* ✅ CSS مبسط - بس اللي محتاجه فعلاً */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1f1f1f; border-radius: 10px; }
