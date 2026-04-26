@@ -1,5 +1,5 @@
 // Pages/TvShows/hooks/VideoPlayer.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
@@ -94,7 +94,6 @@ const ErrorState = ({ resetPlayer, setShowSidebar }) => (
           padding: '9px 24px', background: '#e50914',
           color: '#fff', border: 'none', borderRadius: 8,
           fontSize: 13, fontWeight: 500, cursor: 'pointer',
-          transition: 'background 0.15s',
         }}
       >
         إعادة المحاولة
@@ -105,7 +104,6 @@ const ErrorState = ({ resetPlayer, setShowSidebar }) => (
           padding: '9px 24px', background: 'rgba(255,255,255,0.08)',
           color: '#fff', border: '0.5px solid rgba(255,255,255,0.15)',
           borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-          transition: 'background 0.15s',
         }}
       >
         اختيار حلقة أخرى
@@ -141,7 +139,6 @@ const EmptyState = ({ tvShow, setShowSidebar }) => (
         color: '#fff',
         border: '0.5px solid rgba(229,9,20,0.35)',
         borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-        transition: 'background 0.15s',
       }}
     >
       استعراض الحلقات
@@ -210,7 +207,6 @@ const ControlsBar = ({
     background: '#1a1a1a',
     borderTop: '0.5px solid rgba(255,255,255,0.1)',
   }}>
-    {/* Right side: fullscreen + server */}
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
       <button
         onClick={toggleFullscreen}
@@ -257,7 +253,6 @@ const ControlsBar = ({
       )}
     </div>
 
-    {/* Center: episode title */}
     <div style={{
       flex: 1, minWidth: 0,
       background: 'rgba(255,255,255,0.06)',
@@ -275,7 +270,6 @@ const ControlsBar = ({
       </span>
     </div>
 
-    {/* Left side: episode nav + list buttons */}
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
       <EpisodeNav
         prevEpisode={prevEpisode}
@@ -297,6 +291,7 @@ const ControlsBar = ({
 
 export const VideoPlayer = ({
   isFullscreen,
+  setIsFullscreen,
   playerContainerRef,
   selectedEpisode,
   selectedSeason,
@@ -310,7 +305,6 @@ export const VideoPlayer = ({
   handleIframeLoad,
   handleIframeError,
   switchServer,
-  toggleFullscreen,
   resetPlayer,
   setShowSidebar,
   episodes,
@@ -326,24 +320,36 @@ export const VideoPlayer = ({
   const prevEpisode  = currentIndex > 0 ? episodes[currentIndex - 1] : null;
   const nextEpisode  = currentIndex !== -1 && currentIndex < (episodes?.length - 1) ? episodes[currentIndex + 1] : null;
 
-  const containerStyle = {
-    position: isFullscreen ? 'fixed' : 'relative',
-    inset: isFullscreen ? 0 : undefined,
-    zIndex: isFullscreen ? 50 : undefined,
-    width: '100%',
-    height: isFullscreen ? '100vh' : undefined,
-    aspectRatio: isFullscreen ? undefined : '16/9',
-    background: '#000',
-    display: 'flex',
-    flexDirection: 'column',
+  // ── Fullscreen API ──────────────────────────────────────────────────────────
+  const toggleFullscreen = () => {
+    const el = playerContainerRef.current;
+    if (!el) return;
+
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen?.()
+        ?? el.webkitRequestFullscreen?.()
+        ?? el.mozRequestFullScreen?.()
+        ?? el.msRequestFullscreen?.());
+    } else {
+      (document.exitFullscreen?.()
+        ?? document.webkitExitFullscreen?.()
+        ?? document.mozCancelFullScreen?.()
+        ?? document.msExitFullscreen?.());
+    }
   };
 
-  const controlsPosition = {
-    position: 'absolute',
-    left: 0, right: 0,
-    [isFullscreen ? 'top' : 'bottom']: 0,
-    zIndex: 20,
-  };
+  // مزامنة الـ state مع المتصفح (Escape مثلاً)
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    document.addEventListener('webkitfullscreenchange', handler);
+    return () => {
+      document.removeEventListener('fullscreenchange', handler);
+      document.removeEventListener('webkitfullscreenchange', handler);
+    };
+  }, [setIsFullscreen]);
+
+  // ───────────────────────────────────────────────────────────────────────────
 
   const sharedControlsProps = {
     isFullscreen, toggleFullscreen,
@@ -357,12 +363,27 @@ export const VideoPlayer = ({
 
   return (
     <>
-      <style>{`@keyframes vp-spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes vp-spin { to { transform: rotate(360deg); } }
+        #vp-container:-webkit-full-screen { width: 100%; height: 100%; }
+        #vp-container:-moz-full-screen    { width: 100%; height: 100%; }
+        #vp-container:fullscreen          { width: 100%; height: 100%; background: #000; }
+      `}</style>
 
-      <div ref={playerContainerRef} style={containerStyle}>
-
+      <div
+        id="vp-container"
+        ref={playerContainerRef}
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16/9',
+          background: '#000',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {!selectedEpisode || !currentVideoUrl || videoError ? (
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, position: 'relative' }}>
             {videoError
               ? <ErrorState resetPlayer={resetPlayer} setShowSidebar={setShowSidebar} />
               : <EmptyState tvShow={tvShow} setShowSidebar={setShowSidebar} />
@@ -390,10 +411,9 @@ export const VideoPlayer = ({
           </>
         )}
 
-        <div style={controlsPosition}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20 }}>
           <ControlsBar {...sharedControlsProps} />
         </div>
-
       </div>
     </>
   );

@@ -1,5 +1,5 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
@@ -130,6 +130,7 @@ const ReadyState = () => (
 );
 
 const ControlsBar = ({
+  isFullscreen, toggleFullscreen,
   movie, workingUrls, currentServerIndex, switchServer,
   toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
 }) => (
@@ -139,29 +140,55 @@ const ControlsBar = ({
     background: '#1a1a1a',
     borderTop: '0.5px solid rgba(255,255,255,0.1)',
   }}>
-    {workingUrls.length > 1 && (
+    {/* Right: fullscreen + server */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
       <button
-        onClick={switchServer}
-        title="تغيير السيرفر"
+        onClick={toggleFullscreen}
+        title={isFullscreen ? 'خروج من الشاشة الكاملة' : 'شاشة كاملة'}
         style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '6px 12px',
+          width: 34, height: 34, borderRadius: '50%',
           background: 'rgba(255,255,255,0.05)',
           border: '0.5px solid rgba(255,255,255,0.1)',
-          borderRadius: 99,
-          color: '#fff', fontSize: 12, cursor: 'pointer',
-          flexShrink: 0, whiteSpace: 'nowrap',
-          transition: 'border-color 0.15s',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', color: '#fff', transition: 'all 0.15s',
         }}
       >
-        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-        </svg>
-        {currentServerIndex + 1}/{workingUrls.length}
+        {isFullscreen ? (
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+        )}
       </button>
-    )}
 
+      {workingUrls.length > 1 && (
+        <button
+          onClick={switchServer}
+          title="تغيير السيرفر"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '5px 10px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '0.5px solid rgba(255,255,255,0.1)',
+            borderRadius: 99,
+            color: '#fff', fontSize: 12, cursor: 'pointer',
+            flexShrink: 0, whiteSpace: 'nowrap',
+            transition: 'all 0.15s',
+          }}
+        >
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {currentServerIndex + 1}/{workingUrls.length}
+        </button>
+      )}
+    </div>
+
+    {/* Center: title */}
     <div style={{
       flex: 1, minWidth: 0,
       background: 'rgba(255,255,255,0.06)',
@@ -179,6 +206,7 @@ const ControlsBar = ({
       </span>
     </div>
 
+    {/* Left: list buttons */}
     <UserListButtons
       movie={movie}
       toggleFavorite={toggleFavorite}
@@ -193,6 +221,8 @@ const ControlsBar = ({
 
 export const VideoPlayer = ({
   playerContainerRef,
+  isFullscreen,
+  setIsFullscreen,
   movie,
   currentVideoUrl,
   videoError,
@@ -210,58 +240,106 @@ export const VideoPlayer = ({
   isInWatchLater,
   toggleWatching,
   isWatching,
-}) => (
-  <>
-    <style>{`@keyframes vp-spin { to { transform: rotate(360deg); } }`}</style>
+}) => {
 
-    <div
-      ref={playerContainerRef}
-      style={{
-        position: 'relative', width: '100%',
-        background: '#000',
-        aspectRatio: '16/9',
-      }}
-    >
-      {currentVideoUrl && !videoError ? (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <iframe
-            key={iframeKey}
-            src={currentVideoUrl.url}
-            title={movie?.title}
-            frameBorder="0"
-            allowFullScreen
-            style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
-            onLoad={handleIframeLoad}
-            onError={handleIframeError}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-          />
-          {isVideoLoading && (
-            <LoadingOverlay
-              currentServerIndex={currentServerIndex}
-              workingUrls={workingUrls}
+  // ── Fullscreen API ──────────────────────────────────────────────────────────
+  const toggleFullscreen = () => {
+    const el = playerContainerRef.current;
+    if (!el) return;
+
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen?.()
+        ?? el.webkitRequestFullscreen?.()
+        ?? el.mozRequestFullScreen?.()
+        ?? el.msRequestFullscreen?.());
+    } else {
+      (document.exitFullscreen?.()
+        ?? document.webkitExitFullscreen?.()
+        ?? document.mozCancelFullScreen?.()
+        ?? document.msExitFullscreen?.());
+    }
+  };
+
+  // مزامنة الـ state مع المتصفح (Escape مثلاً)
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    document.addEventListener('webkitfullscreenchange', handler);
+    return () => {
+      document.removeEventListener('fullscreenchange', handler);
+      document.removeEventListener('webkitfullscreenchange', handler);
+    };
+  }, [setIsFullscreen]);
+  // ───────────────────────────────────────────────────────────────────────────
+
+  return (
+    <>
+      <style>{`
+        @keyframes vp-spin { to { transform: rotate(360deg); } }
+        #vp-movie-container:fullscreen          { width: 100%; height: 100%; background: #000; }
+        #vp-movie-container:-webkit-full-screen { width: 100%; height: 100%; }
+        #vp-movie-container:-moz-full-screen    { width: 100%; height: 100%; }
+      `}</style>
+
+      <div
+        id="vp-movie-container"
+        ref={playerContainerRef}
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16/9',
+          background: '#000',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {currentVideoUrl && !videoError ? (
+          <div style={{ position: 'relative', width: '100%', flex: 1 }}>
+            <iframe
+              key={iframeKey}
+              src={currentVideoUrl.url}
+              title={movie?.title}
+              frameBorder="0"
+              allowFullScreen
+              style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
             />
-          )}
-        </div>
-      ) : videoError ? (
-        <ErrorState resetPlayer={resetPlayer} />
-      ) : (
-        <ReadyState />
-      )}
+            {isVideoLoading && (
+              <LoadingOverlay
+                currentServerIndex={currentServerIndex}
+                workingUrls={workingUrls}
+              />
+            )}
+          </div>
+        ) : videoError ? (
+          <div style={{ flex: 1 }}>
+            <ErrorState resetPlayer={resetPlayer} />
+          </div>
+        ) : (
+          <div style={{ flex: 1 }}>
+            <ReadyState />
+          </div>
+        )}
 
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20 }}>
-        <ControlsBar
-          movie={movie}
-          workingUrls={workingUrls}
-          currentServerIndex={currentServerIndex}
-          switchServer={switchServer}
-          toggleFavorite={toggleFavorite}
-          isInFavorites={isInFavorites}
-          toggleWatchLater={toggleWatchLater}
-          isInWatchLater={isInWatchLater}
-          toggleWatching={toggleWatching}
-          isWatching={isWatching}
-        />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20 }}>
+          <ControlsBar
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
+            movie={movie}
+            workingUrls={workingUrls}
+            currentServerIndex={currentServerIndex}
+            switchServer={switchServer}
+            toggleFavorite={toggleFavorite}
+            isInFavorites={isInFavorites}
+            toggleWatchLater={toggleWatchLater}
+            isInWatchLater={isInWatchLater}
+            toggleWatching={toggleWatching}
+            isWatching={isWatching}
+          />
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
