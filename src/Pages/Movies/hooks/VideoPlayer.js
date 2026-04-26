@@ -1,37 +1,197 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor = 'text-red-500', label }) => (
+const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onClick(); }}
     title={label}
-    className="flex flex-col items-center gap-1 group transition-all duration-200 hover:scale-110 active:scale-95"
+    style={{
+      width: 36, height: 36,
+      borderRadius: '50%',
+      background: active
+        ? activeColor === 'red' ? 'rgba(229,9,20,0.12)'
+        : activeColor === 'yellow' ? 'rgba(250,204,21,0.08)'
+        : 'rgba(74,222,128,0.08)'
+        : 'rgba(255,255,255,0.05)',
+      border: `0.5px solid ${
+        active
+          ? activeColor === 'red' ? 'rgba(229,9,20,0.5)'
+          : activeColor === 'yellow' ? 'rgba(250,204,21,0.4)'
+          : 'rgba(74,222,128,0.4)'
+          : 'rgba(255,255,255,0.1)'
+      }`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      cursor: 'pointer', fontSize: 15,
+      transition: 'all 0.15s',
+      flexShrink: 0,
+    }}
   >
-    <div className={`
-      w-10 h-10 rounded-full flex items-center justify-center
-      bg-black/60 backdrop-blur-md border border-white/10
-      group-hover:border-white/30 transition-all duration-200
-      ${active ? activeColor : 'text-white'}
-    `}>
-      <span className="text-lg leading-none">{active ? activeIcon : inactiveIcon}</span>
-    </div>
-    <span className="text-[10px] text-white/70 group-hover:text-white transition hidden sm:block">{label}</span>
+    {active ? activeIcon : inactiveIcon}
   </button>
 );
 
 const UserListButtons = ({ movie, toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching }) => {
   if (!movie) return null;
   return (
-    <div className="flex items-end gap-3">
-      <ActionBtn onClick={() => toggleFavorite(movie)} active={isInFavorites(movie)} activeIcon="❤️" inactiveIcon="🤍" activeColor="text-red-500" label="المفضلة" />
-      <ActionBtn onClick={() => toggleWatchLater(movie)} active={isInWatchLater(movie)} activeIcon="🔖" inactiveIcon="🕐" activeColor="text-yellow-400" label="لاحقاً" />
-      <ActionBtn onClick={() => toggleWatching(movie)} active={isWatching(movie)} activeIcon="▶️" inactiveIcon="⏸️" activeColor="text-green-400" label="أتابع الآن" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+      <ActionBtn onClick={() => toggleFavorite(movie)} active={isInFavorites(movie)} activeIcon="❤️" inactiveIcon="🤍" activeColor="red" label="المفضلة" />
+      <ActionBtn onClick={() => toggleWatchLater(movie)} active={isInWatchLater(movie)} activeIcon="🔖" inactiveIcon="🕐" activeColor="yellow" label="لاحقاً" />
+      <ActionBtn onClick={() => toggleWatching(movie)} active={isWatching(movie)} activeIcon="▶️" inactiveIcon="⏸️" activeColor="green" label="أتابع الآن" />
     </div>
   );
 };
 
+const LoadingOverlay = ({ currentServerIndex, workingUrls }) => (
+  <div style={{
+    position: 'absolute', inset: 0,
+    background: 'rgba(0,0,0,0.9)',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 14, zIndex: 10,
+  }}>
+    <div style={{ position: 'relative', width: 56, height: 56 }}>
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: '50%',
+        border: '3px solid rgba(255,255,255,0.08)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: '50%',
+        border: '3px solid transparent',
+        borderTopColor: '#e50914', borderRightColor: '#e50914',
+        animation: 'vp-spin 0.9s linear infinite',
+      }} />
+    </div>
+    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: 0 }}>جاري تحميل الفيلم...</p>
+    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, margin: 0 }}>
+      السيرفر {currentServerIndex + 1} من {workingUrls.length}
+    </p>
+    <div style={{ width: 180, height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 99, overflow: 'hidden' }}>
+      <div style={{
+        height: '100%', borderRadius: 99,
+        background: '#e50914',
+        width: `${((currentServerIndex + 1) / workingUrls.length) * 100}%`,
+        transition: 'width 0.3s',
+      }} />
+    </div>
+  </div>
+);
+
+const ErrorState = ({ resetPlayer }) => (
+  <div style={{
+    width: '100%', height: '100%',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 14, textAlign: 'center', padding: 16,
+  }}>
+    <div style={{
+      width: 72, height: 72, borderRadius: '50%',
+      background: 'rgba(229,9,20,0.12)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 32,
+    }}>⚠</div>
+    <p style={{ color: '#ff4d4d', fontSize: 15, fontWeight: 500, margin: 0 }}>
+      عذراً، لا يمكن تشغيل هذا الفيلم حالياً
+    </p>
+    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 12, margin: 0 }}>
+      جميع السيرفرات لا تعمل
+    </p>
+    <button
+      onClick={resetPlayer}
+      style={{
+        padding: '8px 22px', background: '#e50914',
+        color: '#fff', border: 'none', borderRadius: 6,
+        fontSize: 13, cursor: 'pointer',
+      }}
+    >
+      إعادة المحاولة
+    </button>
+  </div>
+);
+
+const ReadyState = () => (
+  <div style={{
+    width: '100%', height: '100%',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center', gap: 10,
+  }}>
+    <div style={{
+      width: 72, height: 72, borderRadius: '50%',
+      background: 'rgba(229,9,20,0.1)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 32,
+    }}>🎬</div>
+    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 16, fontWeight: 500, margin: 0 }}>
+      جاري تجهيز المشغل...
+    </p>
+    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: 0 }}>
+      سيبدأ الفيديو قريباً
+    </p>
+  </div>
+);
+
+const ControlsBar = ({
+  movie, workingUrls, currentServerIndex, switchServer,
+  toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
+}) => (
+  <div style={{
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 14px',
+    background: '#1a1a1a',
+    borderTop: '0.5px solid rgba(255,255,255,0.1)',
+  }}>
+    {workingUrls.length > 1 && (
+      <button
+        onClick={switchServer}
+        title="تغيير السيرفر"
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '6px 12px',
+          background: 'rgba(255,255,255,0.05)',
+          border: '0.5px solid rgba(255,255,255,0.1)',
+          borderRadius: 99,
+          color: '#fff', fontSize: 12, cursor: 'pointer',
+          flexShrink: 0, whiteSpace: 'nowrap',
+          transition: 'border-color 0.15s',
+        }}
+      >
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        {currentServerIndex + 1}/{workingUrls.length}
+      </button>
+    )}
+
+    <div style={{
+      flex: 1, minWidth: 0,
+      background: 'rgba(255,255,255,0.06)',
+      border: '0.5px solid rgba(255,255,255,0.1)',
+      borderRadius: 99,
+      padding: '6px 14px',
+      textAlign: 'center', overflow: 'hidden',
+    }}>
+      <span style={{
+        fontSize: 13, fontWeight: 500, color: '#fff',
+        whiteSpace: 'nowrap', overflow: 'hidden',
+        textOverflow: 'ellipsis', display: 'block',
+      }}>
+        {movie?.title}
+      </span>
+    </div>
+
+    <UserListButtons
+      movie={movie}
+      toggleFavorite={toggleFavorite}
+      isInFavorites={isInFavorites}
+      toggleWatchLater={toggleWatchLater}
+      isInWatchLater={isInWatchLater}
+      toggleWatching={toggleWatching}
+      isWatching={isWatching}
+    />
+  </div>
+);
+
 export const VideoPlayer = ({
-  isFullscreen,
   playerContainerRef,
   movie,
   currentVideoUrl,
@@ -43,7 +203,6 @@ export const VideoPlayer = ({
   handleIframeLoad,
   handleIframeError,
   switchServer,
-  toggleFullscreen,
   resetPlayer,
   toggleFavorite,
   isInFavorites,
@@ -51,72 +210,50 @@ export const VideoPlayer = ({
   isInWatchLater,
   toggleWatching,
   isWatching,
-}) => {
+}) => (
+  <>
+    <style>{`@keyframes vp-spin { to { transform: rotate(360deg); } }`}</style>
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  // كشف إذا كان الجهاز محمول
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const ControlsBar = () => (
-    <div className={`
-      flex items-center justify-between gap-3 px-4 py-3
-      ${isFullscreen
-        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
-        : 'bg-[#1a1a1a] border-t border-white/10'
-      }
-    `}>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-        >
-          {isFullscreen ? (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
+    <div
+      ref={playerContainerRef}
+      style={{
+        position: 'relative', width: '100%',
+        background: '#000',
+        aspectRatio: '16/9',
+      }}
+    >
+      {currentVideoUrl && !videoError ? (
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <iframe
+            key={iframeKey}
+            src={currentVideoUrl.url}
+            title={movie?.title}
+            frameBorder="0"
+            allowFullScreen
+            style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
+            onLoad={handleIframeLoad}
+            onError={handleIframeError}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+          />
+          {isVideoLoading && (
+            <LoadingOverlay
+              currentServerIndex={currentServerIndex}
+              workingUrls={workingUrls}
+            />
           )}
-        </button>
-
-        {workingUrls.length > 1 && (
-          <button
-            onClick={switchServer}
-            className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-            title="تغيير السيرفر"
-          >
-            <div className="flex items-center gap-1.5">
-              <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span className="text-xs font-medium hidden sm:inline">
-                {currentServerIndex + 1}/{workingUrls.length}
-              </span>
-            </div>
-          </button>
-        )}
-      </div>
-
-      <div className="flex-1 flex justify-center">
-        <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5 max-w-[200px] md:max-w-md">
-          <span className="text-sm text-white/90 font-medium truncate block text-center">{movie?.title}</span>
         </div>
-      </div>
+      ) : videoError ? (
+        <ErrorState resetPlayer={resetPlayer} />
+      ) : (
+        <ReadyState />
+      )}
 
-      <div className="w-auto flex justify-end">
-        <UserListButtons
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20 }}>
+        <ControlsBar
           movie={movie}
+          workingUrls={workingUrls}
+          currentServerIndex={currentServerIndex}
+          switchServer={switchServer}
           toggleFavorite={toggleFavorite}
           isInFavorites={isInFavorites}
           toggleWatchLater={toggleWatchLater}
@@ -126,84 +263,5 @@ export const VideoPlayer = ({
         />
       </div>
     </div>
-  );
-
-  return (
-    <>
-      <div
-        ref={playerContainerRef}
-        className={`relative w-full bg-black transition-all duration-700 ease-out ${
-          isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-        }`}
-      >
-        {currentVideoUrl && !videoError ? (
-          <div className="relative w-full h-full">
-            <iframe
-              key={iframeKey}
-              src={currentVideoUrl.url}
-              title={movie?.title}
-              frameBorder="0"
-              allowFullScreen
-              className="w-full h-full border-0"
-              onLoad={handleIframeLoad}
-              onError={handleIframeError}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            />
-
-            {isVideoLoading && (
-              <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10 transition-all duration-500">
-                <div className="text-center">
-                  <div className="relative w-16 h-16 mx-auto mb-4">
-                    <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
-                    <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
-                    <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#e50914]/20 to-transparent animate-pulse"></div>
-                  </div>
-                  <p className="text-white text-sm md:text-base font-medium mb-2 tracking-wide">جاري تحميل الفيلم...</p>
-                  <p className="text-gray-400 text-xs md:text-sm">السيرفر {currentServerIndex + 1} من {workingUrls.length}</p>
-                  <div className="w-48 md:w-64 h-1 bg-gray-800 rounded-full mt-4 mx-auto overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#e50914] to-[#ff4d4d] rounded-full animate-pulse transition-all duration-300"
-                      style={{ width: `${((currentServerIndex + 1) / workingUrls.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-        ) : videoError ? (
-          <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-4 p-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-24 h-24 rounded-full bg-[#e50914]/10 flex items-center justify-center">
-                <span className="text-6xl animate-bounce">⚠️</span>
-              </div>
-            </div>
-            <p className="text-[#e50914] text-lg md:text-xl font-semibold">عذراً، لا يمكن تشغيل هذا الفيلم حالياً</p>
-            <p className="text-gray-400 text-sm">جميع السيرفرات لا تعمل</p>
-            <button onClick={resetPlayer} className="bg-gradient-to-r from-[#e50914] to-[#ff4d4d] hover:from-[#b20710] hover:to-[#e50914] px-6 py-2.5 rounded-md transition-all transform hover:scale-105 shadow-lg">
-              إعادة المحاولة
-            </button>
-          </div>
-
-        ) : (
-          <div className="w-full h-full bg-gradient-to-b from-black to-gray-900 flex flex-col items-center justify-center text-center gap-3 p-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#e50914]/20 rounded-full blur-xl animate-ping" />
-              <div className="relative w-20 h-20 rounded-full bg-[#e50914]/20 flex items-center justify-center animate-pulse">
-                <span className="text-4xl">🎬</span>
-              </div>
-            </div>
-            <p className="text-xl md:text-2xl font-semibold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">جاري تجهيز المشغل...</p>
-            <p className="text-gray-400 text-sm">سيبدأ الفيديو قريباً</p>
-          </div>
-        )}
-
-        {/* Controls */}
-        <div className={`${isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'}`}>
-          <ControlsBar />
-        </div>
-      </div>
-    </>
-  );
-};
+  </>
+);

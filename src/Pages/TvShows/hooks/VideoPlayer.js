@@ -1,34 +1,299 @@
 // Pages/TvShows/hooks/VideoPlayer.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onClick(); }}
     title={label}
-    className="flex flex-col items-center gap-1 group transition-all duration-200 hover:scale-110 active:scale-95"
+    style={{
+      width: 36, height: 36,
+      borderRadius: '50%',
+      background: active
+        ? activeColor === 'red' ? 'rgba(229,9,20,0.12)'
+        : activeColor === 'yellow' ? 'rgba(250,204,21,0.08)'
+        : 'rgba(74,222,128,0.08)'
+        : 'rgba(255,255,255,0.05)',
+      border: `0.5px solid ${
+        active
+          ? activeColor === 'red' ? 'rgba(229,9,20,0.5)'
+          : activeColor === 'yellow' ? 'rgba(250,204,21,0.4)'
+          : 'rgba(74,222,128,0.4)'
+          : 'rgba(255,255,255,0.1)'
+      }`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      cursor: 'pointer', fontSize: 15,
+      transition: 'all 0.15s',
+      flexShrink: 0,
+    }}
   >
-    <div className={`
-      w-10 h-10 rounded-full flex items-center justify-center
-      bg-black/60 backdrop-blur-md border border-white/10
-      group-hover:border-white/30 transition-all duration-200
-      ${active ? activeColor : 'text-white'}
-    `}>
-      <span className="text-lg leading-none">{active ? activeIcon : inactiveIcon}</span>
-    </div>
-    <span className="text-[10px] text-white/70 group-hover:text-white transition hidden sm:block">{label}</span>
+    {active ? activeIcon : inactiveIcon}
   </button>
 );
 
 const UserListButtons = ({ tvShow, toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching }) => {
   if (!tvShow) return null;
   return (
-    <div className="flex items-end gap-3">
-      <ActionBtn onClick={() => toggleFavorite(tvShow)} active={isInFavorites(tvShow)} activeIcon="❤️" inactiveIcon="🤍" activeColor="text-red-500" label="المفضلة" />
-      <ActionBtn onClick={() => toggleWatchLater(tvShow)} active={isInWatchLater(tvShow)} activeIcon="🔖" inactiveIcon="🕐" activeColor="text-yellow-400" label="لاحقاً" />
-      <ActionBtn onClick={() => toggleWatching(tvShow)} active={isWatching(tvShow)} activeIcon="▶️" inactiveIcon="⏸️" activeColor="text-green-400" label="أتابع الآن" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+      <ActionBtn onClick={() => toggleFavorite(tvShow)} active={isInFavorites(tvShow)} activeIcon="❤️" inactiveIcon="🤍" activeColor="red" label="المفضلة" />
+      <ActionBtn onClick={() => toggleWatchLater(tvShow)} active={isInWatchLater(tvShow)} activeIcon="🔖" inactiveIcon="🕐" activeColor="yellow" label="لاحقاً" />
+      <ActionBtn onClick={() => toggleWatching(tvShow)} active={isWatching(tvShow)} activeIcon="▶️" inactiveIcon="⏸️" activeColor="green" label="أتابع الآن" />
     </div>
   );
 };
+
+const LoadingOverlay = ({ currentServerIndex, workingUrls }) => (
+  <div style={{
+    position: 'absolute', inset: 0,
+    background: 'rgba(0,0,0,0.9)',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 12, zIndex: 10,
+  }}>
+    <div style={{ position: 'relative', width: 56, height: 56 }}>
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: '50%',
+        border: '3px solid rgba(255,255,255,0.08)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: 0, borderRadius: '50%',
+        border: '3px solid transparent',
+        borderTopColor: '#e50914', borderRightColor: '#e50914',
+        animation: 'vp-spin 0.9s linear infinite',
+      }} />
+    </div>
+    <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 14, margin: 0 }}>جاري تحميل الحلقة...</p>
+    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, margin: 0 }}>
+      السيرفر {currentServerIndex + 1} من {workingUrls.length}
+    </p>
+  </div>
+);
+
+const ErrorState = ({ resetPlayer, setShowSidebar }) => (
+  <div style={{
+    width: '100%', height: '100%',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 14, textAlign: 'center', padding: 24,
+  }}>
+    <div style={{
+      width: 80, height: 80, borderRadius: '50%',
+      background: 'rgba(229,9,20,0.12)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 36,
+    }}>⚠</div>
+    <p style={{ color: '#ff4d4d', fontSize: 18, fontWeight: 500, margin: 0 }}>
+      عذراً، لا يمكن تشغيل هذا المسلسل حالياً
+    </p>
+    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: 0 }}>
+      جميع السيرفرات لا تعمل. يرجى المحاولة مرة أخرى لاحقاً
+    </p>
+    <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+      <button
+        onClick={resetPlayer}
+        style={{
+          padding: '9px 24px', background: '#e50914',
+          color: '#fff', border: 'none', borderRadius: 8,
+          fontSize: 13, fontWeight: 500, cursor: 'pointer',
+          transition: 'background 0.15s',
+        }}
+      >
+        إعادة المحاولة
+      </button>
+      <button
+        onClick={() => setShowSidebar(true)}
+        style={{
+          padding: '9px 24px', background: 'rgba(255,255,255,0.08)',
+          color: '#fff', border: '0.5px solid rgba(255,255,255,0.15)',
+          borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+          transition: 'background 0.15s',
+        }}
+      >
+        اختيار حلقة أخرى
+      </button>
+    </div>
+  </div>
+);
+
+const EmptyState = ({ tvShow, setShowSidebar }) => (
+  <div style={{
+    width: '100%', height: '100%',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'center', justifyContent: 'center',
+    gap: 14, textAlign: 'center', padding: 24,
+  }}>
+    <div style={{
+      width: 88, height: 88, borderRadius: '50%',
+      background: 'rgba(229,9,20,0.1)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 40,
+    }}>🎬</div>
+    <p style={{ color: '#fff', fontSize: 20, fontWeight: 500, margin: 0 }}>
+      اختر حلقة للمشاهدة
+    </p>
+    <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0, maxWidth: 340 }}>
+      اختر موسماً وحلقة من القائمة للبدء في مشاهدة {tvShow?.name}
+    </p>
+    <button
+      onClick={() => setShowSidebar(true)}
+      style={{
+        marginTop: 8, padding: '9px 24px',
+        background: 'rgba(229,9,20,0.15)',
+        color: '#fff',
+        border: '0.5px solid rgba(229,9,20,0.35)',
+        borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+        transition: 'background 0.15s',
+      }}
+    >
+      استعراض الحلقات
+    </button>
+  </div>
+);
+
+const EpisodeNav = ({ prevEpisode, nextEpisode, onEpisodeChange }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <button
+      onClick={() => prevEpisode && onEpisodeChange(prevEpisode)}
+      disabled={!prevEpisode}
+      title={prevEpisode ? `الحلقة ${prevEpisode.episode_number}: ${prevEpisode.name}` : 'لا توجد حلقة سابقة'}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        padding: '5px 10px',
+        background: prevEpisode ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.03)',
+        border: `0.5px solid ${prevEpisode ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)'}`,
+        borderRadius: 99,
+        color: prevEpisode ? '#fff' : 'rgba(255,255,255,0.25)',
+        fontSize: 12, cursor: prevEpisode ? 'pointer' : 'not-allowed',
+        transition: 'all 0.15s',
+      }}
+    >
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+      السابقة
+    </button>
+
+    <button
+      onClick={() => nextEpisode && onEpisodeChange(nextEpisode)}
+      disabled={!nextEpisode}
+      title={nextEpisode ? `الحلقة ${nextEpisode.episode_number}: ${nextEpisode.name}` : 'لا توجد حلقة تالية'}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        padding: '5px 10px',
+        background: nextEpisode ? '#e50914' : 'rgba(255,255,255,0.03)',
+        border: `0.5px solid ${nextEpisode ? '#e50914' : 'rgba(255,255,255,0.05)'}`,
+        borderRadius: 99,
+        color: nextEpisode ? '#fff' : 'rgba(255,255,255,0.25)',
+        fontSize: 12, cursor: nextEpisode ? 'pointer' : 'not-allowed',
+        transition: 'all 0.15s',
+      }}
+    >
+      التالية
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+  </div>
+);
+
+const ControlsBar = ({
+  isFullscreen, toggleFullscreen,
+  workingUrls, currentServerIndex, switchServer,
+  selectedEpisode,
+  prevEpisode, nextEpisode, onEpisodeChange,
+  tvShow, toggleFavorite, isInFavorites,
+  toggleWatchLater, isInWatchLater,
+  toggleWatching, isWatching,
+}) => (
+  <div style={{
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 14px',
+    background: '#1a1a1a',
+    borderTop: '0.5px solid rgba(255,255,255,0.1)',
+  }}>
+    {/* Right side: fullscreen + server */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+      <button
+        onClick={toggleFullscreen}
+        title={isFullscreen ? 'خروج من الشاشة الكاملة' : 'شاشة كاملة'}
+        style={{
+          width: 34, height: 34, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.05)',
+          border: '0.5px solid rgba(255,255,255,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', color: '#fff', transition: 'all 0.15s',
+        }}
+      >
+        {isFullscreen ? (
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+        )}
+      </button>
+
+      {workingUrls.length > 1 && (
+        <button
+          onClick={switchServer}
+          title="تغيير السيرفر"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            padding: '5px 10px',
+            background: 'rgba(255,255,255,0.05)',
+            border: '0.5px solid rgba(255,255,255,0.1)',
+            borderRadius: 99,
+            color: '#fff', fontSize: 12, cursor: 'pointer',
+            transition: 'all 0.15s',
+          }}
+        >
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {currentServerIndex + 1}/{workingUrls.length}
+        </button>
+      )}
+    </div>
+
+    {/* Center: episode title */}
+    <div style={{
+      flex: 1, minWidth: 0,
+      background: 'rgba(255,255,255,0.06)',
+      border: '0.5px solid rgba(255,255,255,0.1)',
+      borderRadius: 99,
+      padding: '5px 14px',
+      textAlign: 'center',
+    }}>
+      <span style={{
+        fontSize: 13, fontWeight: 500, color: '#fff',
+        whiteSpace: 'nowrap', overflow: 'hidden',
+        textOverflow: 'ellipsis', display: 'block',
+      }}>
+        {selectedEpisode?.name}
+      </span>
+    </div>
+
+    {/* Left side: episode nav + list buttons */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+      <EpisodeNav
+        prevEpisode={prevEpisode}
+        nextEpisode={nextEpisode}
+        onEpisodeChange={onEpisodeChange}
+      />
+      <UserListButtons
+        tvShow={tvShow}
+        toggleFavorite={toggleFavorite}
+        isInFavorites={isInFavorites}
+        toggleWatchLater={toggleWatchLater}
+        isInWatchLater={isInWatchLater}
+        toggleWatching={toggleWatching}
+        isWatching={isWatching}
+      />
+    </div>
+  </div>
+);
 
 export const VideoPlayer = ({
   isFullscreen,
@@ -57,191 +322,79 @@ export const VideoPlayer = ({
   toggleWatching,
   isWatching,
 }) => {
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  // كشف إذا كان الجهاز محمول
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   const currentIndex = episodes?.findIndex(ep => ep.id === selectedEpisode?.id) ?? -1;
   const prevEpisode  = currentIndex > 0 ? episodes[currentIndex - 1] : null;
   const nextEpisode  = currentIndex !== -1 && currentIndex < (episodes?.length - 1) ? episodes[currentIndex + 1] : null;
 
-  const ControlsBar = () => (
-    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#1a1a1a] border-t border-white/10">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-        >
-          {isFullscreen ? (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-          )}
-        </button>
+  const containerStyle = {
+    position: isFullscreen ? 'fixed' : 'relative',
+    inset: isFullscreen ? 0 : undefined,
+    zIndex: isFullscreen ? 50 : undefined,
+    width: '100%',
+    height: isFullscreen ? '100vh' : undefined,
+    aspectRatio: isFullscreen ? undefined : '16/9',
+    background: '#000',
+    display: 'flex',
+    flexDirection: 'column',
+  };
 
-        {workingUrls.length > 1 && (
-          <button
-            onClick={switchServer}
-            className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-            title="تغيير السيرفر"
-          >
-            <div className="flex items-center gap-1.5">
-              <svg className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span className="text-xs font-medium hidden sm:inline">
-                {currentServerIndex + 1}/{workingUrls.length}
-              </span>
-            </div>
-          </button>
-        )}
-      </div>
+  const controlsPosition = {
+    position: 'absolute',
+    left: 0, right: 0,
+    [isFullscreen ? 'top' : 'bottom']: 0,
+    zIndex: 20,
+  };
 
-      <div className="flex-1 flex justify-center">
-        <div className="bg-black/50 backdrop-blur-md rounded-full px-4 py-1.5 max-w-[200px] md:max-w-xs truncate">
-          <span className="text-sm text-white/90 font-medium truncate block text-center">
-            {selectedEpisode?.name}
-          </span>
-        </div>
-      </div>
+  const sharedControlsProps = {
+    isFullscreen, toggleFullscreen,
+    workingUrls, currentServerIndex, switchServer,
+    selectedEpisode,
+    prevEpisode, nextEpisode, onEpisodeChange,
+    tvShow, toggleFavorite, isInFavorites,
+    toggleWatchLater, isInWatchLater,
+    toggleWatching, isWatching,
+  };
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => prevEpisode && onEpisodeChange(prevEpisode)}
-            disabled={!prevEpisode}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-all backdrop-blur-md
-              ${prevEpisode ? 'bg-black/60 hover:bg-[#e50914]/80 hover:scale-105 cursor-pointer text-white' : 'bg-black/20 text-white/30 cursor-not-allowed'}`}
-            title={prevEpisode ? `الحلقة ${prevEpisode.episode_number}: ${prevEpisode.name}` : 'لا توجد حلقة سابقة'}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="hidden sm:inline">السابقة</span>
-          </button>
+  return (
+    <>
+      <style>{`@keyframes vp-spin { to { transform: rotate(360deg); } }`}</style>
 
-          <button
-            onClick={() => nextEpisode && onEpisodeChange(nextEpisode)}
-            disabled={!nextEpisode}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium transition-all backdrop-blur-md
-              ${nextEpisode ? 'bg-[#e50914]/80 hover:bg-[#e50914] hover:scale-105 cursor-pointer text-white' : 'bg-black/20 text-white/30 cursor-not-allowed'}`}
-            title={nextEpisode ? `الحلقة ${nextEpisode.episode_number}: ${nextEpisode.name}` : 'لا توجد حلقة تالية'}
-          >
-            <span className="hidden sm:inline">التالية</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        </div>
+      <div ref={playerContainerRef} style={containerStyle}>
 
-        <UserListButtons
-          tvShow={tvShow}
-          toggleFavorite={toggleFavorite}
-          isInFavorites={isInFavorites}
-          toggleWatchLater={toggleWatchLater}
-          isInWatchLater={isInWatchLater}
-          toggleWatching={toggleWatching}
-          isWatching={isWatching}
-        />
-      </div>
-    </div>
-  );
-
-  // ─── Error / No Episode ─────────────────────────────────────────────────────
-  if (!selectedEpisode || !currentVideoUrl || videoError) {
-    return (
-      <div
-        ref={playerContainerRef}
-        className={`relative w-full bg-black transition-all duration-700 ease-out ${
-          isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-        }`}
-      >
-        {videoError ? (
-          <div className="w-full h-full bg-gradient-to-br from-black via-gray-900 to-black flex flex-col items-center justify-center text-center gap-5 p-4">
-            <div className="relative">
-              <div className="w-28 h-28 rounded-full bg-[#e50914]/10 flex items-center justify-center animate-bounce">
-                <span className="text-6xl">⚠️</span>
-              </div>
-            </div>
-            <p className="text-[#e50914] text-2xl md:text-3xl font-bold">عذراً، لا يمكن تشغيل هذا المسلسل حالياً</p>
-            <p className="text-gray-400 text-base max-w-md">جميع السيرفرات لا تعمل. يرجى المحاولة مرة أخرى لاحقاً</p>
-            <div className="flex gap-4 mt-6">
-              <button onClick={resetPlayer} className="bg-[#e50914] hover:bg-[#b20710] px-8 py-3.5 rounded-xl font-semibold transition-all transform hover:scale-105">إعادة المحاولة</button>
-              <button onClick={() => setShowSidebar(true)} className="bg-gray-700 hover:bg-gray-600 px-8 py-3.5 rounded-xl font-semibold transition-all transform hover:scale-105">اختيار حلقة أخرى</button>
-            </div>
+        {!selectedEpisode || !currentVideoUrl || videoError ? (
+          <div style={{ flex: 1 }}>
+            {videoError
+              ? <ErrorState resetPlayer={resetPlayer} setShowSidebar={setShowSidebar} />
+              : <EmptyState tvShow={tvShow} setShowSidebar={setShowSidebar} />
+            }
           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col items-center justify-center text-center gap-5 p-4">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#e50914]/30 to-[#e50914]/5 flex items-center justify-center animate-float">
-                <span className="text-6xl">🎬</span>
-              </div>
-            </div>
-            <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white via-gray-300 to-gray-400 bg-clip-text text-transparent">اختر حلقة للمشاهدة</h3>
-            <p className="text-gray-400 text-base max-w-md">اختر موسماً وحلقة من القائمة أدناه للبدء في مشاهدة {tvShow?.name}</p>
-            <button onClick={() => setShowSidebar(true)} className="mt-6 bg-[#e50914]/20 hover:bg-[#e50914]/30 text-white px-8 py-3 rounded-xl font-semibold transition-all border border-[#e50914]/30">استعراض الحلقات</button>
-          </div>
+          <>
+            <iframe
+              key={iframeKey}
+              src={currentVideoUrl}
+              title={`${tvShow?.name} - S${selectedSeason?.season_number}E${selectedEpisode.episode_number}`}
+              frameBorder="0"
+              allowFullScreen
+              style={{ width: '100%', flex: 1, border: 0, display: 'block' }}
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            />
+            {isVideoLoading && (
+              <LoadingOverlay
+                currentServerIndex={currentServerIndex}
+                workingUrls={workingUrls}
+              />
+            )}
+          </>
         )}
 
-        {/* الأزرار ثابتة دائماً */}
-        <div className={`${isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'}`}>
-          <ControlsBar />
+        <div style={controlsPosition}>
+          <ControlsBar {...sharedControlsProps} />
         </div>
+
       </div>
-    );
-  }
-
-  // ─── Player ─────────────────────────────────────────────────────────────────
-  return (
-    <div
-      ref={playerContainerRef}
-      className={`relative w-full bg-black transition-all duration-700 ease-out ${
-        isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-      }`}
-    >
-      <iframe
-        key={iframeKey}
-        src={currentVideoUrl}
-        title={`${tvShow?.name} - S${selectedSeason?.season_number}E${selectedEpisode.episode_number}`}
-        frameBorder="0"
-        allowFullScreen
-        className="w-full h-full border-0"
-        onLoad={handleIframeLoad}
-        onError={handleIframeError}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-      />
-
-      {isVideoLoading && (
-        <div className="absolute inset-0 bg-gradient-to-b from-black/95 to-black/80 backdrop-blur-md flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="relative w-16 h-16 mx-auto mb-4">
-              <div className="absolute inset-0 rounded-full border-4 border-gray-800/50"></div>
-              <div className="absolute inset-0 rounded-full border-4 border-t-[#e50914] border-r-[#e50914] border-b-transparent border-l-transparent animate-spin"></div>
-            </div>
-            <p className="text-white text-sm font-medium mb-1">جاري تحميل الحلقة...</p>
-            <p className="text-gray-400 text-xs">السيرفر {currentServerIndex + 1} من {workingUrls.length}</p>
-          </div>
-        </div>
-      )}
-
-      {/* شريط التحكم - ثابت دائماً */}
-      <div className={`${isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'}`}>
-        <ControlsBar />
-      </div>
-    </div>
+    </>
   );
 };
