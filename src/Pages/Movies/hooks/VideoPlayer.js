@@ -31,6 +31,7 @@ const UserListButtons = ({ movie, toggleFavorite, isInFavorites, toggleWatchLate
 };
 
 export const VideoPlayer = ({
+  isFullscreen,
   playerContainerRef,
   movie,
   currentVideoUrl,
@@ -42,6 +43,7 @@ export const VideoPlayer = ({
   handleIframeLoad,
   handleIframeError,
   switchServer,
+  toggleFullscreen,
   resetPlayer,
   toggleFavorite,
   isInFavorites,
@@ -64,8 +66,30 @@ export const VideoPlayer = ({
   }, []);
 
   const ControlsBar = () => (
-    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#1a1a1a] border-t border-white/10">
+    <div className={`
+      flex items-center justify-between gap-3 px-4 py-3
+      ${isFullscreen
+        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
+        : 'bg-[#1a1a1a] border-t border-white/10'
+      }
+    `}>
       <div className="flex items-center gap-2">
+        <button
+          onClick={toggleFullscreen}
+          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
+          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
+        >
+          {isFullscreen ? (
+            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+          )}
+        </button>
+
         {workingUrls.length > 1 && (
           <button
             onClick={switchServer}
@@ -108,7 +132,9 @@ export const VideoPlayer = ({
     <>
       <div
         ref={playerContainerRef}
-        className="relative w-full bg-black h-[60vh] md:h-[70vh] lg:h-[80vh]"
+        className={`relative w-full bg-black transition-all duration-700 ease-out ${
+          isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
+        }`}
       >
         {currentVideoUrl && !videoError ? (
           <div className="relative w-full h-full">
@@ -173,8 +199,8 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* Controls - ثابتة دائماً في الأسفل */}
-        <div className="absolute bottom-0 left-0 right-0 z-20">
+        {/* Controls */}
+        <div className={`${isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'}`}>
           <ControlsBar />
         </div>
       </div>
