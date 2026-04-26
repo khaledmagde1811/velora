@@ -133,16 +133,13 @@ const ControlsBar = ({
   isFullscreen, toggleFullscreen,
   movie, workingUrls, currentServerIndex, switchServer,
   toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
-  showControls,
 }) => (
   <div style={{
     display: 'flex', alignItems: 'center', gap: 10,
     padding: '10px 14px',
-    background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)',
-    borderTop: showControls ? '0.5px solid rgba(255,255,255,0.1)' : 'none',
-    opacity: showControls ? 1 : 0,
-    visibility: showControls ? 'visible' : 'hidden',
-    transition: 'opacity 0.3s ease, visibility 0.3s ease',
+    background: '#1a1a1a',
+    borderTop: '0.5px solid rgba(255,255,255,0.1)',
+  
   }}>
     {/* Right: fullscreen + server */}
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -361,19 +358,21 @@ export const VideoPlayer = ({
   // ───────────────────────────────────────────────────────────────────────────
 
   return (
-    <>
-      <style>{`
-        @keyframes vp-spin { to { transform: rotate(360deg); } }
-        #vp-movie-container:fullscreen          { width: 100%; height: 100%; background: #000; }
-        #vp-movie-container:-webkit-full-screen { width: 100%; height: 100%; }
-        #vp-movie-container:-moz-full-screen    { width: 100%; height: 100%; }
-        
-        /* Hide cursor when controls are hidden in fullscreen */
-        #vp-movie-container:fullscreen {
-          cursor: ${isFullscreen && !showControls ? 'none' : 'auto'};
-        }
-      `}</style>
+  <>
+    <style>{`
+      @keyframes vp-spin { to { transform: rotate(360deg); } }
+      #vp-movie-container:fullscreen          { width: 100%; height: 100%; background: #000; }
+      #vp-movie-container:-webkit-full-screen { width: 100%; height: 100%; }
+      #vp-movie-container:-moz-full-screen    { width: 100%; height: 100%; }
+      
+      /* Hide cursor when controls are hidden in fullscreen */
+      #vp-movie-container:fullscreen {
+        cursor: ${isFullscreen && !showControls ? 'none' : 'auto'};
+      }
+    `}</style>
 
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      {/* Video Container */}
       <div
         id="vp-movie-container"
         ref={playerContainerRef}
@@ -391,7 +390,6 @@ export const VideoPlayer = ({
         onTouchStart={handleTouchStart}
         onClick={() => {
           if (isFullscreen) {
-            // Toggle controls on click in fullscreen mode
             if (showControls) {
               setShowControls(false);
               if (controlsTimeout) clearTimeout(controlsTimeout);
@@ -431,34 +429,32 @@ export const VideoPlayer = ({
             <ReadyState />
           </div>
         )}
-
-        <div 
-          style={{ 
-            position: 'absolute', 
-            bottom: 0, 
-            left: 0, 
-            right: 0, 
-            zIndex: 20,
-            pointerEvents: showControls || !isFullscreen ? 'auto' : 'none',
-          }}
-        >
-          <ControlsBar
-            isFullscreen={isFullscreen}
-            toggleFullscreen={toggleFullscreen}
-            movie={movie}
-            workingUrls={workingUrls}
-            currentServerIndex={currentServerIndex}
-            switchServer={switchServer}
-            toggleFavorite={toggleFavorite}
-            isInFavorites={isInFavorites}
-            toggleWatchLater={toggleWatchLater}
-            isInWatchLater={isInWatchLater}
-            toggleWatching={toggleWatching}
-            isWatching={isWatching}
-            showControls={showControls || !isFullscreen}
-          />
-        </div>
       </div>
-    </>
-  );
+
+      {/* Controls Bar - Now outside the video container */}
+      <div 
+        style={{ 
+          width: '100%',
+          pointerEvents: showControls || !isFullscreen ? 'auto' : 'none',
+        }}
+      >
+        <ControlsBar
+          isFullscreen={isFullscreen}
+          toggleFullscreen={toggleFullscreen}
+          movie={movie}
+          workingUrls={workingUrls}
+          currentServerIndex={currentServerIndex}
+          switchServer={switchServer}
+          toggleFavorite={toggleFavorite}
+          isInFavorites={isInFavorites}
+          toggleWatchLater={toggleWatchLater}
+          isInWatchLater={isInWatchLater}
+          toggleWatching={toggleWatching}
+          isWatching={isWatching}
+          showControls={showControls || !isFullscreen}
+        />
+      </div>
+    </div>
+  </>
+);
 };

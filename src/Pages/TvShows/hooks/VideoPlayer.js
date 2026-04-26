@@ -193,23 +193,16 @@ const EpisodeNav = ({ prevEpisode, nextEpisode, onEpisodeChange }) => (
 );
 
 const ControlsBar = ({
-  isFullscreen, toggleFullscreen,
-  workingUrls, currentServerIndex, switchServer,
-  selectedEpisode,
-  prevEpisode, nextEpisode, onEpisodeChange,
-  tvShow, toggleFavorite, isInFavorites,
-  toggleWatchLater, isInWatchLater,
-  toggleWatching, isWatching,
-  showControls,
+ isFullscreen, toggleFullscreen,
+  movie, workingUrls, currentServerIndex, switchServer,
+  toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
 }) => (
   <div style={{
-    display: 'flex', alignItems: 'center', gap: 10,
+ display: 'flex', alignItems: 'center', gap: 10,
     padding: '10px 14px',
-    background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)',
-    borderTop: showControls ? '0.5px solid rgba(255,255,255,0.1)' : 'none',
-    opacity: showControls ? 1 : 0,
-    visibility: showControls ? 'visible' : 'hidden',
-    transition: 'opacity 0.3s ease, visibility 0.3s ease',
+    background: '#1a1a1a',
+    borderTop: '0.5px solid rgba(255,255,255,0.1)',
+
   }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
       <button
@@ -451,18 +444,20 @@ export const VideoPlayer = ({
 
   return (
     <>
-      <style>{`
-        @keyframes vp-spin { to { transform: rotate(360deg); } }
-        #vp-container:-webkit-full-screen { width: 100%; height: 100%; }
-        #vp-container:-moz-full-screen    { width: 100%; height: 100%; }
-        #vp-container:fullscreen          { width: 100%; height: 100%; background: #000; }
-        
-        /* Hide cursor when controls are hidden in fullscreen */
-        #vp-container:fullscreen {
-          cursor: ${isFullscreen && !showControls ? 'none' : 'auto'};
-        }
-      `}</style>
+       <style>{`
+      @keyframes vp-spin { to { transform: rotate(360deg); } }
+      #vp-container:-webkit-full-screen { width: 100%; height: 100%; }
+      #vp-container:-moz-full-screen    { width: 100%; height: 100%; }
+      #vp-container:fullscreen          { width: 100%; height: 100%; background: #000; }
+      
+      /* Hide cursor when controls are hidden in fullscreen */
+      #vp-container:fullscreen {
+        cursor: ${isFullscreen && !showControls ? 'none' : 'auto'};
+      }
+    `}</style>
 
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      {/* Video Container */}
       <div
         id="vp-container"
         ref={playerContainerRef}
@@ -480,7 +475,6 @@ export const VideoPlayer = ({
         onTouchStart={handleTouchStart}
         onClick={() => {
           if (isFullscreen) {
-            // Toggle controls on click in fullscreen mode
             if (showControls) {
               setShowControls(false);
               if (controlsTimeout) clearTimeout(controlsTimeout);
@@ -519,20 +513,17 @@ export const VideoPlayer = ({
             )}
           </>
         )}
-
-        <div 
-          style={{ 
-            position: 'absolute', 
-            bottom: 0, 
-            left: 0, 
-            right: 0, 
-            zIndex: 20,
-            pointerEvents: showControls || !isFullscreen ? 'auto' : 'none',
-          }}
-        >
-          <ControlsBar {...sharedControlsProps} />
-        </div>
       </div>
+
+  <div 
+        style={{ 
+          width: '100%',
+          pointerEvents: showControls || !isFullscreen ? 'auto' : 'none',
+        }}
+      >
+        <ControlsBar {...sharedControlsProps} />
+      </div>
+    </div>
     </>
   );
 };
