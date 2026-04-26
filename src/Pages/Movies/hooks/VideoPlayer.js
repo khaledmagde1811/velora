@@ -31,7 +31,6 @@ const UserListButtons = ({ movie, toggleFavorite, isInFavorites, toggleWatchLate
 };
 
 export const VideoPlayer = ({
-  isFullscreen,
   playerContainerRef,
   movie,
   currentVideoUrl,
@@ -43,7 +42,6 @@ export const VideoPlayer = ({
   handleIframeLoad,
   handleIframeError,
   switchServer,
-  toggleFullscreen,
   resetPlayer,
   toggleFavorite,
   isInFavorites,
@@ -53,9 +51,7 @@ export const VideoPlayer = ({
   isWatching,
 }) => {
 
-  const [showControls, setShowControls] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  let hideTimeout = null;
 
   // كشف إذا كان الجهاز محمول
   useEffect(() => {
@@ -67,38 +63,9 @@ export const VideoPlayer = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // تنظيف الـ timeout عند إلغاء تحميل المكون
-  useEffect(() => {
-    return () => {
-      if (hideTimeout) clearTimeout(hideTimeout);
-    };
-  }, []);
-
   const ControlsBar = () => (
-    <div className={`
-      flex items-center justify-between gap-3 px-4 py-3
-      ${isFullscreen
-        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
-        : 'bg-[#1a1a1a] border-t border-white/10'
-      }
-    `}>
+    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#1a1a1a] border-t border-white/10">
       <div className="flex items-center gap-2">
-        <button
-          onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? "خروج من الشاشة الكاملة" : "شاشة كاملة"}
-        >
-          {isFullscreen ? (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-          )}
-        </button>
-
         {workingUrls.length > 1 && (
           <button
             onClick={switchServer}
@@ -137,49 +104,11 @@ export const VideoPlayer = ({
     </div>
   );
 
-  // دالة للتعامل مع إظهار وإخفاء الأزرار على المحمول
-  const handleMouseEnter = () => {
-    if (hideTimeout) clearTimeout(hideTimeout);
-    setShowControls(true);
-  };
-
-  const handleMouseLeave = () => {
-    if (isMobile && isFullscreen) {
-      // على المحمول في وضع ملء الشاشة: نخفي الأزرار بعد 3 ثواني
-      hideTimeout = setTimeout(() => {
-        setShowControls(false);
-      }, 3000);
-    } else {
-      setShowControls(false);
-    }
-  };
-
-  const handleClick = () => {
-    // على المحمول وفي وضع ملء الشاشة، نضغط لإظهار/إخفاء الأزرار
-    if (isMobile && isFullscreen) {
-      if (hideTimeout) clearTimeout(hideTimeout);
-      setShowControls(!showControls);
-      
-      // إذا تم إظهار الأزرار، نخفيها تلقائياً بعد 3 ثواني
-      if (!showControls) {
-        hideTimeout = setTimeout(() => {
-          setShowControls(false);
-        }, 3000);
-      }
-    }
-  };
-
   return (
     <>
       <div
         ref={playerContainerRef}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
-        className={`
-          relative w-full bg-black transition-all duration-700 ease-out
-          ${isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'}
-        `}
+        className="relative w-full bg-black h-[60vh] md:h-[70vh] lg:h-[80vh]"
       >
         {currentVideoUrl && !videoError ? (
           <div className="relative w-full h-full">
@@ -244,29 +173,10 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* Controls - تظهر بشكل مختلف على المحمول */}
-        <div className={`transition-opacity duration-300 ${
-          (isMobile && isFullscreen && (videoError || !currentVideoUrl)) 
-            ? 'opacity-100'  // في حالة الخطأ على المحمول، تظهر الأزرار دائماً
-            : (showControls ? 'opacity-100' : 'opacity-0')
-        } ${
-          isFullscreen
-            ? 'absolute top-0 left-0 right-0 z-20'
-            : 'absolute bottom-0 left-0 right-0 z-20'
-        }`}>
+        {/* Controls - ثابتة دائماً في الأسفل */}
+        <div className="absolute bottom-0 left-0 right-0 z-20">
           <ControlsBar />
         </div>
-
-        {/* إضافة مؤشر للإشارة إلى إمكانية النقر على المحمول في وضع ملء الشاشة */}
-        {isMobile && isFullscreen && !videoError && currentVideoUrl && !showControls && (
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-            <div className="bg-black/50 backdrop-blur-md rounded-full p-2 animate-pulse">
-              <svg className="w-8 h-8 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.5 4.5l-4 4" />
-              </svg>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

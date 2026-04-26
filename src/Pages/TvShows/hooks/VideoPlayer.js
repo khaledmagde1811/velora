@@ -31,7 +31,6 @@ const UserListButtons = ({ tvShow, toggleFavorite, isInFavorites, toggleWatchLat
 };
 
 export const VideoPlayer = ({
-  isFullscreen,
   playerContainerRef,
   selectedEpisode,
   selectedSeason,
@@ -45,7 +44,6 @@ export const VideoPlayer = ({
   handleIframeLoad,
   handleIframeError,
   switchServer,
-  toggleFullscreen,
   resetPlayer,
   setShowSidebar,
   episodes,
@@ -58,7 +56,6 @@ export const VideoPlayer = ({
   isWatching,
 }) => {
 
-  const [showControls, setShowControls] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   // كشف إذا كان الجهاز محمول
@@ -76,30 +73,8 @@ export const VideoPlayer = ({
   const nextEpisode  = currentIndex !== -1 && currentIndex < (episodes?.length - 1) ? episodes[currentIndex + 1] : null;
 
   const ControlsBar = () => (
-    <div className={`
-      flex items-center justify-between gap-3 px-4 py-3
-      ${isFullscreen
-        ? 'absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/90 via-black/50 to-transparent'
-        : 'bg-[#1a1a1a] border-t border-white/10'
-      }
-    `}>
+    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-[#1a1a1a] border-t border-white/10">
       <div className="flex items-center gap-2">
-        <button
-          onClick={toggleFullscreen}
-          className="bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-full p-2.5 transition-all hover:scale-110 group"
-          title={isFullscreen ? 'خروج من الشاشة الكاملة' : 'شاشة كاملة'}
-        >
-          {isFullscreen ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
-          )}
-        </button>
-
         {workingUrls.length > 1 && (
           <button
             onClick={switchServer}
@@ -173,16 +148,7 @@ export const VideoPlayer = ({
     return (
       <div
         ref={playerContainerRef}
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => {
-          // على المحمول، لا نخفي الأزرار في حالة الخطأ أو عدم وجود حلقة
-          if (!isMobile || (!videoError && selectedEpisode)) {
-            setShowControls(false);
-          }
-        }}
-        className={`relative w-full bg-black transition-all duration-700 ease-out ${
-          isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-        }`}
+        className="relative w-full bg-black h-[60vh] md:h-[70vh] lg:h-[80vh]"
       >
         {videoError ? (
           <div className="w-full h-full bg-gradient-to-br from-black via-gray-900 to-black flex flex-col items-center justify-center text-center gap-5 p-4">
@@ -211,14 +177,8 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        {/* في حالة الخطأ أو عدم وجود حلقة، نظهر الأزرار دائماً على المحمول */}
-        <div className={`transition-opacity duration-300 ${
-          (isMobile && (videoError || !selectedEpisode)) 
-            ? 'opacity-100' 
-            : (showControls ? 'opacity-100' : 'opacity-0')
-        } ${
-          isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'
-        }`}>
+        {/* الأزرار ثابتة دائماً */}
+        <div className="absolute bottom-0 left-0 right-0 z-20">
           <ControlsBar />
         </div>
       </div>
@@ -229,25 +189,7 @@ export const VideoPlayer = ({
   return (
     <div
       ref={playerContainerRef}
-      onMouseEnter={() => setShowControls(true)}
-      onMouseLeave={() => {
-        // على المحمول وفي وضع ملء الشاشة، نخفي الأزرار تلقائياً بعد 3 ثواني
-        if (isMobile && isFullscreen) {
-          // نستخدم setTimeout لإخفاء الأزرار بعد فترة
-          const timer = setTimeout(() => setShowControls(false), 3000);
-          return () => clearTimeout(timer);
-        }
-        setShowControls(false);
-      }}
-      onClick={() => {
-        // على المحمول وفي وضع ملء الشاشة، نضغط لإظهار/إخفاء الأزرار
-        if (isMobile && isFullscreen) {
-          setShowControls(!showControls);
-        }
-      }}
-      className={`relative w-full bg-black transition-all duration-700 ease-out ${
-        isFullscreen ? 'fixed inset-0 z-50 h-screen' : 'h-[60vh] md:h-[70vh] lg:h-[80vh]'
-      }`}
+      className="relative w-full bg-black h-[60vh] md:h-[70vh] lg:h-[80vh]"
     >
       <iframe
         key={iframeKey}
@@ -274,27 +216,10 @@ export const VideoPlayer = ({
         </div>
       )}
 
-      {/* شريط التحكم - يظهر بشكل مختلف على المحمول في وضع ملء الشاشة */}
-      <div className={`transition-opacity duration-300 ${
-        isMobile && isFullscreen 
-          ? (showControls ? 'opacity-100' : 'opacity-0')  // على المحمول في وضع ملء الشاشة: يظهر فقط عند النقر
-          : (showControls ? 'opacity-100' : 'opacity-0')   // في الحالات الأخرى: يظهر عند hover
-      } ${
-        isFullscreen ? 'absolute top-0 left-0 right-0 z-20' : 'absolute bottom-0 left-0 right-0 z-20'
-      }`}>
+      {/* شريط التحكم - ثابت دائماً */}
+      <div className="absolute bottom-0 left-0 right-0 z-20">
         <ControlsBar />
       </div>
-
-      {/* إضافة مؤشر للإشارة إلى إمكانية النقر على المحمول في وضع ملء الشاشة */}
-      {isMobile && isFullscreen && !showControls && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-          <div className="bg-black/50 backdrop-blur-md rounded-full p-2">
-            <svg className="w-8 h-8 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.5 4.5l-4 4" />
-            </svg>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
