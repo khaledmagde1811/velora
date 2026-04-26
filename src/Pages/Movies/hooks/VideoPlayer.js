@@ -1,5 +1,5 @@
 // src/Pages/Movie/components/VideoPlayer.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const ActionBtn = ({ onClick, active, activeIcon, inactiveIcon, activeColor, label }) => (
   <button
@@ -133,12 +133,16 @@ const ControlsBar = ({
   isFullscreen, toggleFullscreen,
   movie, workingUrls, currentServerIndex, switchServer,
   toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
+  showControls,
 }) => (
   <div style={{
     display: 'flex', alignItems: 'center', gap: 10,
     padding: '10px 14px',
-    background: '#1a1a1a',
-    borderTop: '0.5px solid rgba(255,255,255,0.1)',
+    background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7), transparent)',
+    borderTop: showControls ? '0.5px solid rgba(255,255,255,0.1)' : 'none',
+    opacity: showControls ? 1 : 0,
+    visibility: showControls ? 'visible' : 'hidden',
+    transition: 'opacity 0.3s ease, visibility 0.3s ease',
   }}>
     {/* Right: fullscreen + server */}
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -241,6 +245,9 @@ export const VideoPlayer = ({
   toggleWatching,
   isWatching,
 }) => {
+  const [showControls, setShowControls] = useState(true);
+  const [controlsTimeout, setControlsTimeout] = useState(null);
+  const [isMouseMoving, setIsMouseMoving] = useState(false);
 
   // ── Fullscreen API ──────────────────────────────────────────────────────────
   const toggleFullscreen = () => {
@@ -260,16 +267,97 @@ export const VideoPlayer = ({
     }
   };
 
+  // Auto-hide controls in fullscreen mode
+  const resetControlsTimer = () => {
+    if (!isFullscreen) return;
+    
+    setShowControls(true);
+    setIsMouseMoving(true);
+    
+    if (controlsTimeout) clearTimeout(controlsTimeout);
+    
+    const newTimeout = setTimeout(() => {
+      if (isFullscreen) {
+        setShowControls(false);
+        setIsMouseMoving(false);
+      }
+    }, 3000);
+    
+    setControlsTimeout(newTimeout);
+  };
+
+  // Show controls on mouse move in fullscreen
+  const handleMouseMove = () => {
+    if (isFullscreen) {
+      resetControlsTimer();
+    }
+  };
+
+  // Handle mouse leave to hide controls faster
+  const handleMouseLeave = () => {
+    if (isFullscreen && !isMouseMoving) {
+      setShowControls(false);
+    }
+  };
+
+  // Handle touch for mobile devices
+  const handleTouchStart = () => {
+    if (isFullscreen) {
+      if (showControls) {
+        // If controls are visible, hide them after 2 seconds
+        if (controlsTimeout) clearTimeout(controlsTimeout);
+        const newTimeout = setTimeout(() => {
+          if (isFullscreen) setShowControls(false);
+        }, 2000);
+        setControlsTimeout(newTimeout);
+      } else {
+        // If controls are hidden, show them
+        setShowControls(true);
+        // Auto hide after 3 seconds
+        if (controlsTimeout) clearTimeout(controlsTimeout);
+        const newTimeout = setTimeout(() => {
+          if (isFullscreen) setShowControls(false);
+        }, 3000);
+        setControlsTimeout(newTimeout);
+      }
+    }
+  };
+
   // مزامنة الـ state مع المتصفح (Escape مثلاً)
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    const handler = () => {
+      const fullscreen = !!document.fullscreenElement;
+      setIsFullscreen(fullscreen);
+      
+      // Reset controls visibility when exiting fullscreen
+      if (!fullscreen) {
+        setShowControls(true);
+        if (controlsTimeout) clearTimeout(controlsTimeout);
+      } else {
+        // When entering fullscreen, show controls then auto-hide
+        setShowControls(true);
+        const timeout = setTimeout(() => {
+          if (fullscreen) setShowControls(false);
+        }, 3000);
+        setControlsTimeout(timeout);
+      }
+    };
+    
     document.addEventListener('fullscreenchange', handler);
     document.addEventListener('webkitfullscreenchange', handler);
     return () => {
       document.removeEventListener('fullscreenchange', handler);
       document.removeEventListener('webkitfullscreenchange', handler);
+      if (controlsTimeout) clearTimeout(controlsTimeout);
     };
   }, [setIsFullscreen]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (controlsTimeout) clearTimeout(controlsTimeout);
+    };
+  }, [controlsTimeout]);
   // ───────────────────────────────────────────────────────────────────────────
 
   return (
@@ -279,6 +367,11 @@ export const VideoPlayer = ({
         #vp-movie-container:fullscreen          { width: 100%; height: 100%; background: #000; }
         #vp-movie-container:-webkit-full-screen { width: 100%; height: 100%; }
         #vp-movie-container:-moz-full-screen    { width: 100%; height: 100%; }
+        
+        /* Hide cursor when controls are hidden in fullscreen */
+        #vp-movie-container:fullscreen {
+          cursor: ${isFullscreen && !showControls ? 'none' : 'auto'};
+        }
       `}</style>
 
       <div
@@ -291,6 +384,22 @@ export const VideoPlayer = ({
           background: '#000',
           display: 'flex',
           flexDirection: 'column',
+          cursor: isFullscreen && !showControls ? 'none' : 'auto',
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onClick={() => {
+          if (isFullscreen) {
+            // Toggle controls on click in fullscreen mode
+            if (showControls) {
+              setShowControls(false);
+              if (controlsTimeout) clearTimeout(controlsTimeout);
+            } else {
+              setShowControls(true);
+              resetControlsTimer();
+            }
+          }
         }}
       >
         {currentVideoUrl && !videoError ? (
@@ -323,7 +432,16 @@ export const VideoPlayer = ({
           </div>
         )}
 
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 20 }}>
+        <div 
+          style={{ 
+            position: 'absolute', 
+            bottom: 0, 
+            left: 0, 
+            right: 0, 
+            zIndex: 20,
+            pointerEvents: showControls || !isFullscreen ? 'auto' : 'none',
+          }}
+        >
           <ControlsBar
             isFullscreen={isFullscreen}
             toggleFullscreen={toggleFullscreen}
@@ -337,6 +455,7 @@ export const VideoPlayer = ({
             isInWatchLater={isInWatchLater}
             toggleWatching={toggleWatching}
             isWatching={isWatching}
+            showControls={showControls || !isFullscreen}
           />
         </div>
       </div>
