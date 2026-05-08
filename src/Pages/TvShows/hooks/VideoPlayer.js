@@ -194,7 +194,8 @@ const EpisodeNav = ({ prevEpisode, nextEpisode, onEpisodeChange }) => (
 
 const ControlsBar = ({
  isFullscreen, toggleFullscreen,
-  movie, workingUrls, currentServerIndex, switchServer,
+  selectedEpisode, prevEpisode, nextEpisode, onEpisodeChange,
+  tvShow, workingUrls, currentServerIndex, switchServer,
   toggleFavorite, isInFavorites, toggleWatchLater, isInWatchLater, toggleWatching, isWatching,
 }) => (
   <div style={{

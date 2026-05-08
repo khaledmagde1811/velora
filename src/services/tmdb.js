@@ -3,29 +3,30 @@
 import axios from 'axios';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
-const ACCESS_TOKEN = process.env.REACT_APP_TMDB_READ_ACCESS_TOKEN;
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
-if (!ACCESS_TOKEN) {
-  console.error('❌ REACT_APP_TMDB_READ_ACCESS_TOKEN is not defined in .env');
+if (!API_KEY) {
+  console.error('❌ REACT_APP_TMDB_API_KEY is not defined in .env');
 }
 
 // إنشء instance من axios بدون interceptors في البداية
 const tmdbApi = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Authorization': `Bearer ${ACCESS_TOKEN}`,
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
 
 // Interceptor للطلبات - بسيط جداً وآمن
-// Interceptor للطلبات - بعد التعديل
 tmdbApi.interceptors.request.use(
   (config) => {
     if (!config.params) {
       config.params = {};
     }
+    
+    // أضف api_key
+    config.params.api_key = API_KEY;
     
     // ✅ فقط أضف اللغة إذا كان الطلب مش للبحث
     if (!config.url.includes('/search/')) {
