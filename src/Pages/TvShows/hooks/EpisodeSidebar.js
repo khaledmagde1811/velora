@@ -78,7 +78,10 @@ export const EpisodeSidebar = ({
             {episodes.map((episode, idx) => (
               <div
                 key={episode.id}
-                onClick={() => onEpisodeChange(episode)}
+                onClick={() => {
+                  onEpisodeChange(episode);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className={`group flex items-start gap-4 p-4 rounded-xl cursor-pointer transition-all duration-300 animate-fadeInUp ${
                   selectedEpisode?.id === episode.id
                     ? 'bg-gradient-to-r from-[#e50914]/20 to-transparent border-r-4 border-[#e50914] shadow-lg'
