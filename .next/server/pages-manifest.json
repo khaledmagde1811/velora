@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/tvshows": "pages/tvshows.js",
   "/": "pages/index.js",
-  "/tv/[id]": "pages/tv/[id].js"
+  "/about": "pages/about.js",
+  "/moviespagde": "pages/moviespagde.js",
+  "/movie/[id]": "pages/movie/[id].js"
 }

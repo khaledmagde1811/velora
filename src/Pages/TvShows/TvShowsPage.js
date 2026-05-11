@@ -269,23 +269,46 @@ const TvShowsPage = () => {
   return (
     <div className="bg-[#141414] min-h-screen">
       <Helmet>
-        <title>مسلسلات - مشاهدة اون لاين مجاناً | Velora</title>
-        <meta name="description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية على Velora. مسلسلات Netflix، HBO، وأكثر." />
-        <meta name="keywords" content="مسلسلات, مشاهدة اون لاين, عربي, Netflix, HBO, مسلسلات تركية, أنمي, HD, 4K" />
-        <meta name="author" content="Velora" />
+        <title>VELORA | أفضل مسلسلات أون لاين مجاناً</title>
+        <meta
+          name="description"
+          content="تابع أحدث المسلسلات العربية والعالمية أون لاين مجاناً على VELORA. مكتبة مسلسلات Netflix، HBO، تركية، عربية، وأنمي بجودة عالية." 
+        />
+        <meta name="keywords" content="VELORA, مسلسلات, مشاهدة أون لاين, Netflix, HBO, أنمي, مسلسلات عربية, مسلسلات تركية, HD" />
+        <meta name="author" content="VELORA" />
         <meta name="robots" content="index, follow" />
-        <meta property="og:title" content="مسلسلات - مشاهدة اون لاين مجاناً | Velora" />
-        <meta property="og:description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية." />
-        <meta property="og:image" content="https://www.veloravelora.online/og-image-tv.jpg" />
+        <meta property="og:title" content="VELORA | أفضل مسلسلات أون لاين مجاناً" />
+        <meta
+          property="og:description"
+          content="تابع أحدث المسلسلات العربية والعالمية أون لاين مجاناً على VELORA. تمتع بتجربة عرض سريعة وسهلة." 
+        />
+        <meta property="og:image" content="https://www.veloravelora.online/VELORA-512.png" />
         <meta property="og:url" content="https://www.veloravelora.online/tvshows" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Velora" />
+        <meta property="og:site_name" content="VELORA" />
         <meta property="og:locale" content="ar_EG" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="مسلسلات - مشاهدة اون لاين مجاناً | Velora" />
-        <meta name="twitter:description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية." />
-        <meta name="twitter:image" content="https://www.veloravelora.online/og-image-tv.jpg" />
+        <meta name="twitter:title" content="VELORA | أفضل مسلسلات أون لاين مجاناً" />
+        <meta
+          name="twitter:description"
+          content="تابع أحدث المسلسلات العربية والعالمية أون لاين مجاناً على VELORA. اختيارات جديدة يومياً وتجربة سهلة للمشاهدة." 
+        />
+        <meta name="twitter:image" content="https://www.veloravelora.online/VELORA-512.png" />
         <link rel="canonical" href="https://www.veloravelora.online/tvshows" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            'name': 'مسلسلات VELORA',
+            'description': 'تابع أحدث المسلسلات العربية والعالمية أون لاين مجاناً على VELORA.',
+            'url': 'https://www.veloravelora.online/tvshows',
+            'publisher': {
+              '@type': 'Organization',
+              'name': 'VELORA',
+              'url': 'https://www.veloravelora.online'
+            }
+          })}
+        </script>
       </Helmet>
       {/* Hero Banner */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[85vh] overflow-hidden">

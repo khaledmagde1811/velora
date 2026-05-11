@@ -13,6 +13,11 @@ const Footer = () => {
       { name: 'مسلسلات', path: '/tvshows' },
       { name: 'الأحدث', path: '/latest' },
     ],
+    'عن VELORA': [
+      { name: 'عن المنصة', path: '/about' },
+      { name: 'سياسة الخصوصية', path: '/privacy' },
+      { name: 'الشروط والأحكام', path: '/terms' },
+    ],
     'أقسام الأفلام': [
       { name: 'أكشن', category: 'action', type: 'movie' },
       { name: 'كوميدي', category: 'comedy', type: 'movie' },

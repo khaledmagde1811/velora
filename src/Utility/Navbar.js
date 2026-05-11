@@ -48,6 +48,7 @@ const Navbar = () => {
   // روابط التنقل
 const navLinks = [
   { name: 'الرئيسية', path: '/' },
+  { name: 'من نحن', path: '/about' },
   { name: 'أفلام', path: '/moviespagde', hasDropdown: true, dropdownType: 'movies' },
   { name: 'مسلسلات', path: '/tvshows', hasDropdown: true, dropdownType: 'tv' },
 

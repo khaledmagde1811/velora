@@ -3,6 +3,7 @@ import { useNavigate } from '../../next-router-dom';
 import tmdbApi, { requests } from '../../services/tmdb';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
+import { Helmet } from 'react-helmet-async';
 
 // استيراد أنماط Swiper
 import 'swiper/css';
@@ -194,6 +195,51 @@ const MoviesPagde = () => {
 
   return (
     <div className="min-h-screen bg-[#141414]">
+      <Helmet>
+        <title>VELORA | أحدث الأفلام أون لاين مجاناً</title>
+        <meta
+          name="description"
+          content="اكتشف أحدث الأفلام العربية والعالمية على VELORA. تصفح أفلام أكشن، كوميديا، رعب، رومانسية، وثائقيات بجودة عالية أون لاين."
+        />
+        <meta
+          name="keywords"
+          content="VELORA, أفلام, مشاهدة أون لاين, أفلام عربية, أفلام أجنبية, أفلام 4K, أفلام أكشن, أفلام كوميدي"
+        />
+        <meta name="author" content="VELORA" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="VELORA | أحدث الأفلام أون لاين مجاناً" />
+        <meta
+          property="og:description"
+          content="استمتع بمكتبة أفلام واسعة على VELORA مع توصيات جديدة يومياً ومشاهدة مباشرة بدون تعقيد."
+        />
+        <meta property="og:image" content="https://www.veloravelora.online/VELORA-512.png" />
+        <meta property="og:url" content="https://www.veloravelora.online/moviespagde" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="VELORA" />
+        <meta property="og:locale" content="ar_EG" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="VELORA | أحدث الأفلام أون لاين مجاناً" />
+        <meta
+          name="twitter:description"
+          content="استمتع بأحدث الأفلام العربية والعالمية على VELORA. تصفح مكتبة واسعة بجودة عالية."
+        />
+        <meta name="twitter:image" content="https://www.veloravelora.online/VELORA-512.png" />
+        <link rel="canonical" href="https://www.veloravelora.online/moviespagde" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            'name': 'أفلام VELORA',
+            'description': 'اكتشف أحدث الأفلام العربية والعالمية على VELORA مع توصيات يومية ومحتوى منظم.',
+            'url': 'https://www.veloravelora.online/moviespagde',
+            'publisher': {
+              '@type': 'Organization',
+              'name': 'VELORA',
+              'url': 'https://www.veloravelora.online'
+            }
+          })}
+        </script>
+      </Helmet>
       {/* Hero Section */}
       <div className="relative h-[70vh] md:h-[85vh] w-full overflow-hidden">
         {currentMovie && (

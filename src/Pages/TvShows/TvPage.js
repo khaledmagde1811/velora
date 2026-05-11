@@ -80,22 +80,22 @@ const TvPage = () => {
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
 
       <Helmet>
-        <title>{tvShow.name} - مشاهدة اون لاين مجاناً | Velora</title>
-        <meta name="description" content={`${tvShow.overview?.slice(0, 155)}... شاهد ${tvShow.name} بجودة عالية على Velora.`} />
-        <meta name="keywords" content={`${tvShow.name}, مسلسل, مشاهدة اون لاين, ${tvShow.genres?.map(g => g.name).join(', ')}, عربي, HD`} />
-        <meta name="author" content="Velora" />
+        <title>{tvShow.name} - مشاهدة اون لاين مجاناً | VELORA</title>
+        <meta name="description" content={`${tvShow.overview?.slice(0, 155)}... شاهد ${tvShow.name} بجودة عالية على VELORA.`} />
+        <meta name="keywords" content={`${tvShow.name}, مسلسل, مشاهدة اون لاين, ${tvShow.genres?.map(g => g.name).join(', ')}, عربي, HD, VELORA`} />
+        <meta name="author" content="VELORA" />
         <meta name="robots" content="index, follow" />
-        <meta property="og:title" content={`${tvShow.name} - مشاهدة اون لاين | Velora`} />
+        <meta property="og:title" content={`${tvShow.name} - مشاهدة اون لاين | VELORA`} />
         <meta property="og:description" content={`${tvShow.overview?.slice(0, 155)}... شاهد الآن!`} />
         <meta property="og:image" content={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} />
         <meta property="og:image:width" content="500" />
         <meta property="og:image:height" content="750" />
         <meta property="og:url" content={`https://www.veloravelora.online/tv/${id}`} />
         <meta property="og:type" content="video.tv_show" />
-        <meta property="og:site_name" content="Velora" />
+        <meta property="og:site_name" content="VELORA" />
         <meta property="og:locale" content="ar_EG" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${tvShow.name} - مشاهدة اون لاين | Velora`} />
+        <meta name="twitter:title" content={`${tvShow.name} - مشاهدة اون لاين | VELORA`} />
         <meta name="twitter:description" content={`${tvShow.overview?.slice(0, 155)}...`} />
         <meta name="twitter:image" content={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} />
         <link rel="canonical" href={`https://www.veloravelora.online/tv/${id}`} />
