@@ -3,6 +3,7 @@
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
   "/movie/[id]": "pages/movie/[id].js",
-  "/tvshows": "pages/tvshows.js",
-  "/tv/[id]": "pages/tv/[id].js"
+  "/moviespagde": "pages/moviespagde.js",
+  "/tv/[id]": "pages/tv/[id].js",
+  "/tvshows": "pages/tvshows.js"
 }

@@ -174,7 +174,7 @@ const MoviesPagde = () => {
   };
 
   const sections = [
-    { title: 'حصرياً على VELORA', url: requests.fetchNetflixOriginals },
+    
     { title: 'الأكثر مشاهدة', url: requests.fetchTrending },
     { title: 'معروضة حالياً', url: requests.fetchNowPlaying },
     { title: 'قادمة قريباً', url: requests.fetchUpcoming },
