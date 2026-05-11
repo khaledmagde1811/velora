@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../next-router-dom';
 import { useUserLists } from './UserListsContext';
 import { FaPlay, FaTimes, FaClock, FaHeart, FaPlayCircle, FaTrash, FaSearch, FaFilm, FaTv } from 'react-icons/fa';
 import { IoMdStar } from 'react-icons/io';

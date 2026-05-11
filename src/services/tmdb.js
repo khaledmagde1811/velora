@@ -1,15 +1,14 @@
-// services/tmdb.js - النسخة الصحيحة النهائية
+// services/tmdb.js
 
 import axios from 'axios';
 
 const BASE_URL = 'https://api.themoviedb.org/3';
-const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.REACT_APP_TMDB_API_KEY;
 
 if (!API_KEY) {
-  console.error('❌ REACT_APP_TMDB_API_KEY is not defined in .env');
+  console.error('❌ NEXT_PUBLIC_TMDB_API_KEY is not defined in .env (or REACT_APP_TMDB_API_KEY legacy env)');
 }
 
-// إنشء instance من axios بدون interceptors في البداية
 const tmdbApi = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -18,29 +17,18 @@ const tmdbApi = axios.create({
   },
 });
 
-// Interceptor للطلبات - بسيط جداً وآمن
 tmdbApi.interceptors.request.use(
   (config) => {
-    if (!config.params) {
-      config.params = {};
-    }
-    
-    // أضف api_key
+    if (!config.params) config.params = {};
     config.params.api_key = API_KEY;
-    
-    // ✅ فقط أضف اللغة إذا كان الطلب مش للبحث
     if (!config.url.includes('/search/')) {
       config.params.language = 'ar-SA';
     }
-    
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Interceptor للاستجابات
 tmdbApi.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -66,33 +54,50 @@ export const tvRequests = {
   fetchArabicTV: `/discover/tv?with_original_language=ar`,
 };
 
-// TV Functions
-export const getTvEmbedUrl = (tmdbId, ds_lang = 'ar') => {
+// ========== TV EMBED URLS ==========
+export const getTvEmbedUrl = (tmdbId) => {
   if (!tmdbId) return null;
-  return `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&ds_lang=${ds_lang}&autoplay=1`;
+  return `https://vidsrc.me/embed/tv?tmdb=${tmdbId}`;
 };
 
-export const getEpisodeEmbedUrl = (tmdbId, season, episode, ds_lang = 'ar') => {
+export const getEpisodeEmbedUrl = (tmdbId, season, episode) => {
   if (!tmdbId || !season || !episode) return null;
-  return `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=${ds_lang}&autoplay=1`;
+  return `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
 };
 
 export const getEpisodeEmbedUrls = (tmdbId, season, episode) => {
-  const sources = [
-    `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=ar&autoplay=1`,
-    `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}&ds_lang=en&autoplay=1`,
-    `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,
-    `https://vidsrc.to/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,
+  return [
+    `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`, // ← الافتراضي
+    `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,
+    `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}`,
+    `https://2embed.cc/embed/tv/${tmdbId}/${season}/${episode}`,
     `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`,
+    `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`,
   ];
-  return sources;
 };
 
+// ========== MOVIE EMBED URLS ==========
+export const getMovieEmbedUrl = (tmdbId) => {
+  if (!tmdbId) return null;
+  return `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`;
+};
+
+export const getMovieEmbedUrls = (tmdbId) => {
+  return [
+    `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`, // ← الافتراضي
+    `https://vidsrc.to/embed/movie/${tmdbId}`,
+    `https://vidlink.pro/movie/${tmdbId}`,
+    `https://2embed.cc/embed/${tmdbId}`,
+    `https://embed.su/embed/movie/${tmdbId}`,
+    `https://autoembed.co/movie/tmdb/${tmdbId}`,
+  ];
+};
+
+// ========== TV FUNCTIONS ==========
 export const fetchLatestTvShows = async (page = 1) => {
   try {
-    const response = await fetch(`https://vidsrc-embed.ru/tvshows/latest/page-${page}.json`);
-    const data = await response.json();
-    return data.result || [];
+    const response = await tmdbApi.get('/tv/on_the_air', { params: { page } });
+    return response.data.results || [];
   } catch (error) {
     console.error('Error fetching latest TV shows:', error);
     return [];
@@ -101,9 +106,8 @@ export const fetchLatestTvShows = async (page = 1) => {
 
 export const fetchLatestEpisodes = async (page = 1) => {
   try {
-    const response = await fetch(`https://vidsrc-embed.ru/episodes/latest/page-${page}.json`);
-    const data = await response.json();
-    return data.result || [];
+    const response = await tmdbApi.get('/tv/airing_today', { params: { page } });
+    return response.data.results || [];
   } catch (error) {
     console.error('Error fetching latest episodes:', error);
     return [];
@@ -121,9 +125,6 @@ export const fetchTvDetails = async (tvId) => {
 };
 
 export const fetchAllTvSections = async () => {
-  // لا تضع النصوص العربية في الـ params
-  // استخدم الـ URLs الثابتة من tvRequests فقط
-  
   const sections = [
     { title: 'أشهر المسلسلات', url: tvRequests.fetchTrendingTV },
     { title: 'مسلسلات Netflix الأصلية', url: tvRequests.fetchNetflixTVShows },
@@ -141,10 +142,8 @@ export const fetchAllTvSections = async () => {
   ];
 
   const results = {};
-  
   for (const section of sections) {
     try {
-      // استخدم فقط الـ URL المُعرّف
       const response = await tmdbApi.get(section.url);
       results[section.title] = response.data.results || [];
     } catch (sectionError) {
@@ -152,7 +151,6 @@ export const fetchAllTvSections = async () => {
       results[section.title] = [];
     }
   }
-  
   return results;
 };
 
@@ -160,9 +158,8 @@ export const fetchRandomTvShow = async () => {
   try {
     const response = await tmdbApi.get('/tv/popular');
     const shows = response.data.results;
-    if (shows && shows.length > 0) {
-      const randomIndex = Math.floor(Math.random() * shows.length);
-      return shows[randomIndex];
+    if (shows?.length > 0) {
+      return shows[Math.floor(Math.random() * shows.length)];
     }
     return null;
   } catch (error) {
@@ -174,10 +171,9 @@ export const fetchRandomTvShow = async () => {
 export const fetchTvSeasons = async (tvId) => {
   try {
     const response = await tmdbApi.get(`/tv/${tvId}`);
-    const validSeasons = response.data.seasons?.filter(
+    return response.data.seasons?.filter(
       season => season.season_number > 0 && season.episode_count > 0
     ) || [];
-    return validSeasons;
   } catch (error) {
     console.error(`Error fetching seasons for TV ${tvId}:`, error);
     return [];
@@ -185,15 +181,10 @@ export const fetchTvSeasons = async (tvId) => {
 };
 
 export const fetchTvEpisodes = async (tvId, seasonNumber) => {
-  if (!tvId || !seasonNumber || seasonNumber <= 0) {
-    return [];
-  }
-  
+  if (!tvId || !seasonNumber || seasonNumber <= 0) return [];
   try {
     const response = await tmdbApi.get(`/tv/${tvId}/season/${seasonNumber}`);
-    const episodes = response.data.episodes || [];
-    
-    return episodes.map(episode => ({
+    return (response.data.episodes || []).map(episode => ({
       id: episode.id,
       name: episode.name || `الحلقة ${episode.episode_number}`,
       episode_number: episode.episode_number,
@@ -211,27 +202,10 @@ export const fetchTvEpisodes = async (tvId, seasonNumber) => {
 };
 
 // ========== MOVIE FUNCTIONS ==========
-export const getMovieEmbedUrl = (tmdbId, ds_lang = 'ar') => {
-  if (!tmdbId) return null;
-  return `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}&ds_lang=${ds_lang}&autoplay=1`;
-};
-
-export const getMovieEmbedUrls = (tmdbId) => {
-  const sources = [
-    `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}&ds_lang=ar&autoplay=1`,
-    `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}&ds_lang=en&autoplay=1`,
-    `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,
-    `https://vidsrc.to/embed/movie?tmdb=${tmdbId}`,
-    `https://embed.su/embed/movie/${tmdbId}`,
-  ];
-  return sources;
-};
-
 export const fetchLatestMovies = async (page = 1) => {
   try {
-    const response = await fetch(`https://vidsrc-embed.ru/movies/latest/page-${page}.json`);
-    const data = await response.json();
-    return data.result || [];
+    const response = await tmdbApi.get('/movie/now_playing', { params: { page } });
+    return response.data.results || [];
   } catch (error) {
     console.error('Error fetching latest movies:', error);
     return [];
@@ -252,9 +226,8 @@ export const fetchRandomMovie = async () => {
   try {
     const response = await tmdbApi.get('/movie/popular');
     const movies = response.data.results;
-    if (movies && movies.length > 0) {
-      const randomIndex = Math.floor(Math.random() * movies.length);
-      return movies[randomIndex];
+    if (movies?.length > 0) {
+      return movies[Math.floor(Math.random() * movies.length)];
     }
     return null;
   } catch (error) {
@@ -265,9 +238,7 @@ export const fetchRandomMovie = async () => {
 
 export const searchMovies = async (query) => {
   try {
-    const response = await tmdbApi.get('/search/movie', {
-      params: { query }
-    });
+    const response = await tmdbApi.get('/search/movie', { params: { query } });
     return response.data.results;
   } catch (error) {
     console.error('Search error:', error);
@@ -275,7 +246,7 @@ export const searchMovies = async (query) => {
   }
 };
 
-// ========== REQUESTS OBJECT (للأفلام) ==========
+// ========== REQUESTS OBJECT ==========
 export const requests = {
   fetchTrending: `/trending/all/week`,
   fetchNetflixOriginals: `/discover/tv?with_networks=213`,

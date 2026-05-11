@@ -223,7 +223,6 @@ const ControlsBar = ({
 export const VideoPlayer = ({
   playerContainerRef,
   isFullscreen,
-  setIsFullscreen,
   movie,
   currentVideoUrl,
   videoError,
@@ -324,14 +323,13 @@ export const VideoPlayer = ({
   useEffect(() => {
     const handler = () => {
       const fullscreen = !!document.fullscreenElement;
-      setIsFullscreen(fullscreen);
-      
-      // Reset controls visibility when exiting fullscreen
+
+      // Parent fullscreen hook already updates isFullscreen.
+      // Here we only reset control visibility when fullscreen changes.
       if (!fullscreen) {
         setShowControls(true);
         if (controlsTimeout) clearTimeout(controlsTimeout);
       } else {
-        // When entering fullscreen, show controls then auto-hide
         setShowControls(true);
         const timeout = setTimeout(() => {
           if (fullscreen) setShowControls(false);
@@ -339,7 +337,7 @@ export const VideoPlayer = ({
         setControlsTimeout(timeout);
       }
     };
-    
+
     document.addEventListener('fullscreenchange', handler);
     document.addEventListener('webkitfullscreenchange', handler);
     return () => {
@@ -347,7 +345,7 @@ export const VideoPlayer = ({
       document.removeEventListener('webkitfullscreenchange', handler);
       if (controlsTimeout) clearTimeout(controlsTimeout);
     };
-  }, [setIsFullscreen]);
+  }, [controlsTimeout]);
 
   // Cleanup timeout on unmount
   useEffect(() => {

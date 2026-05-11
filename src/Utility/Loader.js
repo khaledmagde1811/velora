@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import "./Loader.css";
 
 export default function Loader({ onDone }) {
   const loaderRef = useRef();

@@ -1,6 +1,7 @@
 // Pages/TvShows/TvShowsPage.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../next-router-dom';
+import { Helmet } from 'react-helmet-async';
 import tmdbApi, { tvRequests } from '../../services/tmdb';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
@@ -267,6 +268,25 @@ const TvShowsPage = () => {
 
   return (
     <div className="bg-[#141414] min-h-screen">
+      <Helmet>
+        <title>مسلسلات - مشاهدة اون لاين مجاناً | Velora</title>
+        <meta name="description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية على Velora. مسلسلات Netflix، HBO، وأكثر." />
+        <meta name="keywords" content="مسلسلات, مشاهدة اون لاين, عربي, Netflix, HBO, مسلسلات تركية, أنمي, HD, 4K" />
+        <meta name="author" content="Velora" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="مسلسلات - مشاهدة اون لاين مجاناً | Velora" />
+        <meta property="og:description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية." />
+        <meta property="og:image" content="https://www.veloravelora.online/og-image-tv.jpg" />
+        <meta property="og:url" content="https://www.veloravelora.online/tvshows" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Velora" />
+        <meta property="og:locale" content="ar_EG" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="مسلسلات - مشاهدة اون لاين مجاناً | Velora" />
+        <meta name="twitter:description" content="شاهد أحدث المسلسلات العربية والعالمية اون لاين مجاناً بجودة عالية." />
+        <meta name="twitter:image" content="https://www.veloravelora.online/og-image-tv.jpg" />
+        <link rel="canonical" href="https://www.veloravelora.online/tvshows" />
+      </Helmet>
       {/* Hero Banner */}
       <div className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[85vh] overflow-hidden">
         {heroShow && (

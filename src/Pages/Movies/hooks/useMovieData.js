@@ -11,14 +11,17 @@ export const useMovieData = (id) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      
+
+      const numericId = parseInt(id);
+      if (isNaN(numericId)) return;
+
       setLoading(true);
       setError(null);
-      
+
       try {
         const [movieRes, suggestedRes] = await Promise.all([
-          tmdbApi.get(`/movie/${id}`),
-          tmdbApi.get(`/movie/${id}/similar`),
+          tmdbApi.get(`/movie/${numericId}`),
+          tmdbApi.get(`/movie/${numericId}/similar`),
         ]);
 
         if (!movieRes.data) {
@@ -29,8 +32,11 @@ export const useMovieData = (id) => {
         setMovie(movieRes.data);
         setSuggested(suggestedRes.data.results.slice(0, 18));
       } catch (err) {
-        console.error('Error fetching movie:', err);
-        setError('حدث خطأ في تحميل بيانات الفيلم');
+        if (err.response?.status === 404) {
+          setError('هذا المحتوى غير متاح كفيلم');
+        } else {
+          setError('حدث خطأ في تحميل بيانات الفيلم');
+        }
       } finally {
         setLoading(false);
       }

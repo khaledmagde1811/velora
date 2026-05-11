@@ -1,6 +1,6 @@
 // Utility/ScrollToTop.js
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '../next-router-dom';
 
 function ScrollToTop() {
   const { pathname } = useLocation();

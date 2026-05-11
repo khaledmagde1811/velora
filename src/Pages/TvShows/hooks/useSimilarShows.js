@@ -10,7 +10,14 @@ export const useSimilarShows = (tvId) => {
       if (!tvId) return;
       setSimilarShowsLoading(true);
       try {
-        const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
+        const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || process.env.REACT_APP_TMDB_API_KEY;
+        if (!API_KEY) {
+          console.error('❌ NEXT_PUBLIC_TMDB_API_KEY is not defined in .env (or REACT_APP_TMDB_API_KEY legacy env)');
+          setSimilarShows([]);
+          setSimilarShowsLoading(false);
+          return;
+        }
+
         const response = await fetch(
           `https://api.themoviedb.org/3/tv/${tvId}/similar?api_key=${API_KEY}&language=ar-SA`
         );

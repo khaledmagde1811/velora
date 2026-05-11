@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '../next-router-dom';
 import tmdbApi, { requests } from '../services/tmdb';
-import "./Navbar.css";
 
 const Navbar = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '../../next-router-dom';
 import { useMovieData } from './hooks/useMovieData';
 import { useVideoPlayer } from './hooks/useVideoPlayer';
 import { useFullscreen } from './hooks/useFullscreen';

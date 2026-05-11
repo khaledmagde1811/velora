@@ -8,13 +8,14 @@ export const useVideoPlayer = (movieId) => {
   const [failedServers, setFailedServers] = useState([]);
   const [iframeKey, setIframeKey] = useState(0);
 
-  // Video sources with TMDB ID
   const videoSources = useMemo(() => [
-    { label: 'VidSrc 1', url: `https://vidsrc.xyz/embed/movie?tmdb=${movieId}`, priority: 1 },
-    { label: 'VidSrc 2', url: `https://vidsrc.to/embed/movie?tmdb=${movieId}`, priority: 2 },
-    { label: 'Embed.su', url: `https://embed.su/embed/movie/${movieId}`, priority: 3 },
-    { label: '2Embed', url: `https://2embed.cc/embed/${movieId}`, priority: 4 },
-    { label: 'VidSrc Pro', url: `https://vidsrc.net/embed/movie/${movieId}`, priority: 5 },
+    
+    { label: 'VidSrc Me',  url: `https://vidsrc.me/embed/movie?tmdb=${movieId}`,     priority: 1 },
+    { label: 'VidLink',    url: `https://vidlink.pro/movie/${movieId}`,               priority: 2 },
+    { label: '2Embed',     url: `https://2embed.cc/embed/${movieId}`,                 priority: 3 },
+    { label: 'Embed.su',   url: `https://embed.su/embed/movie/${movieId}`,            priority: 4 },
+    { label: 'VidSrc Net', url: `https://vidsrc.net/embed/movie/${movieId}`,          priority: 5 },
+    { label: 'AutoEmbed',  url: `https://autoembed.co/movie/tmdb/${movieId}`,         priority: 6 },
   ], [movieId]);
 
   // Filter working servers

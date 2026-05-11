@@ -1,6 +1,6 @@
 // Pages/TvPage.jsx
 import React, { useState, useCallback, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '../../next-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useTvData } from './hooks/useTvData';
 import { useVideoPlayer } from './hooks/useVideoPlayer';
@@ -80,14 +80,43 @@ const TvPage = () => {
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
 
       <Helmet>
-        <title>{tvShow.name} - مشاهدة اون لاين | Velora</title>
-        <meta name="description" content={tvShow.overview?.slice(0, 155)} />
-        <meta property="og:title" content={tvShow.name} />
-        <meta property="og:description" content={tvShow.overview?.slice(0, 155)} />
+        <title>{tvShow.name} - مشاهدة اون لاين مجاناً | Velora</title>
+        <meta name="description" content={`${tvShow.overview?.slice(0, 155)}... شاهد ${tvShow.name} بجودة عالية على Velora.`} />
+        <meta name="keywords" content={`${tvShow.name}, مسلسل, مشاهدة اون لاين, ${tvShow.genres?.map(g => g.name).join(', ')}, عربي, HD`} />
+        <meta name="author" content="Velora" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content={`${tvShow.name} - مشاهدة اون لاين | Velora`} />
+        <meta property="og:description" content={`${tvShow.overview?.slice(0, 155)}... شاهد الآن!`} />
         <meta property="og:image" content={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} />
+        <meta property="og:image:width" content="500" />
+        <meta property="og:image:height" content="750" />
         <meta property="og:url" content={`https://www.veloravelora.online/tv/${id}`} />
         <meta property="og:type" content="video.tv_show" />
+        <meta property="og:site_name" content="Velora" />
+        <meta property="og:locale" content="ar_EG" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${tvShow.name} - مشاهدة اون لاين | Velora`} />
+        <meta name="twitter:description" content={`${tvShow.overview?.slice(0, 155)}...`} />
+        <meta name="twitter:image" content={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} />
         <link rel="canonical" href={`https://www.veloravelora.online/tv/${id}`} />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TVSeries",
+            "name": tvShow.name,
+            "description": tvShow.overview,
+            "image": `https://image.tmdb.org/t/p/w500${tvShow.poster_path}`,
+            "genre": tvShow.genres?.map(g => g.name),
+            "datePublished": tvShow.first_air_date,
+            "numberOfSeasons": tvShow.number_of_seasons,
+            "url": `https://www.veloravelora.online/tv/${id}`,
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": tvShow.vote_average,
+              "ratingCount": tvShow.vote_count
+            }
+          })}
+        </script>
       </Helmet>
       
       <div style={{ position: 'relative', overflow: 'hidden' }}>
