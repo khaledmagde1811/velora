@@ -64,7 +64,7 @@ function MovieRow({ title, fetchUrl, onMovieClick }) {
                   ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
                   : 'https://via.placeholder.com/300x450?text=No+Image'
                 }
-                alt={movie.title || movie.name}
+                alt={`بوستر فيلم ${movie.title || movie.name}`}
                 onError={(e) => e.target.src = 'https://via.placeholder.com/300x450?text=No+Image'}
               />
               <div className="movie-card-overlay">

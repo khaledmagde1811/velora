@@ -207,7 +207,7 @@ const SearchPage = () => {
                         ? `https://image.tmdb.org/t/p/w300${item.poster_path}`
                         : 'https://via.placeholder.com/300x450?text=No+Poster'
                       }
-                      alt={item.title || item.name}
+                      alt={`بوستر ${item.title ? 'فيلم' : 'مسلسل'} ${item.title || item.name}`}
                       className="w-full rounded-lg shadow-lg"
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/300x450?text=No+Poster';

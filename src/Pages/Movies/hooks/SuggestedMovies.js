@@ -65,7 +65,7 @@ export const SuggestedMovies = ({ suggested, navigate }) => {
                         ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
                         : 'https://share.google/WtIWVQuaLAgqUiBRx'
                     }
-                    alt={movie.title}
+                    alt={`بوستر فيلم مشابه ${movie.title}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />

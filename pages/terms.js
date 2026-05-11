@@ -8,6 +8,12 @@ export default function TermsPage() {
         <meta
           name="description"
           content="الشروط والأحكام الخاصة بمنصة VELORA للمشاهدة عبر الإنترنت. تشمل قواعد الاستخدام والتزامات المستخدم." />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://www.veloravelora.online/terms" />
+        <meta property="og:title" content="الشروط والأحكام | VELORA" />
+        <meta property="og:description" content="الشروط والأحكام الخاصة بمنصة VELORA للمشاهدة عبر الإنترنت. تشمل قواعل الاستخدام والتزامات المستخدم." />
+        <meta property="og:url" content="https://www.veloravelora.online/terms" />
+        <meta property="og:type" content="website" />
       </Head>
       <main className="min-h-screen bg-[#060606] text-white px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl space-y-10">

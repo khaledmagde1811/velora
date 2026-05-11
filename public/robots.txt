@@ -1,9 +1,24 @@
 
-User-agent: Mediapartners-Google
-Disallow: 
+# VELORA Robots File
+# Allow all search engines to crawl
 
 User-agent: *
+Allow: /
 Disallow: /search
+Disallow: /_next
+Disallow: /static
+
+# Specific user agents
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Mediapartners-Google
 Allow: /
 
-Sitemap: https://www.veloravelora.online/
+# Sitemaps
+Sitemap: https://www.veloravelora.online/sitemap.xml

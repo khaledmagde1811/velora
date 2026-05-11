@@ -8,6 +8,12 @@ export default function PrivacyPage() {
         <meta
           name="description"
           content="سياسة خصوصية VELORA توضح كيفية جمع المعلومات وحمايتها واستخدامها داخل المنصة." />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://www.veloravelora.online/privacy" />
+        <meta property="og:title" content="سياسة الخصوصية | VELORA" />
+        <meta property="og:description" content="سياسة خصوصية VELORA توضح كيفية جمع المعلومات وحمايتها واستخدامها داخل المنصة." />
+        <meta property="og:url" content="https://www.veloravelora.online/privacy" />
+        <meta property="og:type" content="website" />
       </Head>
       <main className="min-h-screen bg-[#060606] text-white px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl space-y-10">

@@ -147,7 +147,7 @@ const CategoryPage = () => {
                 {/* Image */}
                 <img
                   src={posterUrl}
-                  alt={item.title || item.name}
+                  alt={`بوستر ${item.title ? 'فيلم' : 'مسلسل'} ${item.title || item.name}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   loading="lazy"
                 />

@@ -62,7 +62,7 @@ export const SimilarShows = ({ similarShows, similarShowsLoading, navigate }) =>
                         ? `https://image.tmdb.org/t/p/w300${show.poster_path}`
                         : 'https://via.placeholder.com/300x450?text=No+Image'
                     }
-                    alt={show.name}
+                    alt={`بوستر مسلسل مشابه ${show.name}`}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />

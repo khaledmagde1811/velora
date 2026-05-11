@@ -138,7 +138,7 @@ export const EpisodeSidebar = ({
           <div className="space-y-8">
             {tvShow.poster_path && (
               <div className="lg:hidden w-40 mx-auto rounded-2xl overflow-hidden shadow-2xl">
-                <img src={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} alt={tvShow.name} className="w-full h-auto" />
+                <img src={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`} alt={`بوستر مسلسل ${tvShow.name}`} className="w-full h-auto" />
               </div>
             )}
             {tvShow.overview && (

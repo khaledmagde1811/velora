@@ -149,7 +149,7 @@ const TvRow = ({ title, fetchUrl, onTvClick, onViewAll }) => {
                       ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
                       : 'https://share.google/WtIWVQuaLAgqUiBRx'
                     }
-                    alt={show.name}
+                    alt={`بوستر مسلسل ${show.name}`}
                     className="w-full h-[200px] sm:h-[230px] md:h-[260px] lg:h-[280px] object-cover"
                     loading="lazy"
                     onError={(e) => {

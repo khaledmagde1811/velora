@@ -8,7 +8,7 @@ export const TvInfoSection = ({ tvShow }) => (
         <div className="hidden lg:block w-56 xl:w-64 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-3xl">
           <img 
             src={`https://image.tmdb.org/t/p/w500${tvShow.poster_path}`}
-            alt={tvShow.name}
+            alt={`بوستر مسلسل ${tvShow.name}`}
             className="w-full h-auto"
           />
         </div>

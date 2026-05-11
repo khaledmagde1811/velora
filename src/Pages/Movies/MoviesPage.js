@@ -113,7 +113,7 @@ const MovieRow = ({ title, fetchUrl, onMovieClick, onViewAll }) => {
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                     : 'https://share.google/WtIWVQuaLAgqUiBRx'
                   }
-                  alt={movie.title || movie.name}
+                  alt={`بوستر فيلم ${movie.title || movie.name}`}
                   className="w-full rounded-lg shadow-lg"
                   onError={(e) => {
                     e.target.src = 'https://share.google/WtIWVQuaLAgqUiBRx';
@@ -247,7 +247,7 @@ const MoviesPagde = () => {
             <img
               className="absolute inset-0 w-full h-full object-cover"
               src={`https://image.tmdb.org/t/p/original${currentMovie.backdrop_path}`}
-              alt={currentMovie.title}
+              alt={`خلفية فيلم ${currentMovie.title}`}
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />

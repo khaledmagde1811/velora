@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from '../../next-router-dom';
 import { useMovieData } from './hooks/useMovieData';
 import { useVideoPlayer } from './hooks/useVideoPlayer';
@@ -71,48 +70,6 @@ const MoviePage = () => {
 
   return (
     <div style={{ backgroundColor: '#141414', color: 'white', overflowX: 'hidden' }}>
-      <Helmet>
-        <title>{`${movieTitle} - مشاهدة فيلم أون لاين | VELORA`}</title>
-        <meta name="description" content={movieDescription} />
-        <meta
-          name="keywords"
-          content={`${movieTitle}, فيلم, مشاهدة أون لاين, ${movie.genres?.map((g) => g.name).join(', ') || ''}, VELORA`}
-        />
-        <meta name="author" content="VELORA" />
-        <meta name="robots" content="index, follow" />
-        <meta property="og:title" content={`${movieTitle} - مشاهدة فيلم أون لاين | VELORA`} />
-        <meta property="og:description" content={movieDescription} />
-        <meta property="og:image" content={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} />
-        <meta property="og:url" content={`https://www.veloravelora.online/movie/${id}`} />
-        <meta property="og:type" content="video.movie" />
-        <meta property="og:site_name" content="VELORA" />
-        <meta property="og:locale" content="ar_EG" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${movieTitle} - مشاهدة فيلم أون لاين | VELORA`} />
-        <meta name="twitter:description" content={movieDescription} />
-        <meta name="twitter:image" content={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} />
-        <link rel="canonical" href={`https://www.veloravelora.online/movie/${id}`} />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'Movie',
-            'name': movieTitle,
-            'description': movie.overview || '',
-            'image': `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-            'genre': movie.genres?.map((g) => g.name),
-            'datePublished': movie.release_date,
-            'duration': movie.runtime ? `PT${movie.runtime}M` : undefined,
-            'url': `https://www.veloravelora.online/movie/${id}`,
-            'aggregateRating': movie.vote_average
-              ? {
-                  '@type': 'AggregateRating',
-                  'ratingValue': movie.vote_average,
-                  'ratingCount': movie.vote_count
-                }
-              : undefined
-          })}
-        </script>
-      </Helmet>
       <div style={{ position: 'relative', overflow: 'hidden' }}>
 
         {/* Hero Background */}

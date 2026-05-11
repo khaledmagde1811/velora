@@ -432,7 +432,7 @@ const navLinks = [
                           ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
                           : 'https://share.google/WtIWVQuaLAgqUiBRx'
                       }
-                      alt={item.title || item.name}
+                      alt={`بوستر ${item.media_type === 'movie' ? 'فيلم' : 'مسلسل'} ${item.title || item.name}`}
                       className="search-result-poster"
                     />
                     <div className="search-result-info">

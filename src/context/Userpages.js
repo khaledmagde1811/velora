@@ -33,7 +33,7 @@ const MediaCard = ({ item, onPlay, onRemove, showProgress = false }) => {
       <div className="relative rounded-lg overflow-hidden shadow-lg aspect-[2/3]">
         <img
           src={item.poster_path ? `${IMAGE_BASE}${item.poster_path}` : FALLBACK}
-          alt={item.title}
+          alt={`بوستر فيلم ${item.title}`}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => { e.target.src = FALLBACK; }}
         />
