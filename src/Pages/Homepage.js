@@ -85,7 +85,7 @@ const Homepage = () => {
         position: 'relative',
         zIndex: 1,
       }}>
-        <NetflixHero/>
+        <Netflix  Hero/>
       </div>
     </div>
   )

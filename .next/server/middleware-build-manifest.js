@@ -20,16 +20,6 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/movie/[id]": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/movie/[id].js"
-    ],
-    "/moviespagde": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/moviespagde.js"
-    ],
     "/tv/[id]": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
